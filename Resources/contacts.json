@@ -1,0 +1,26 @@
+[
+  {
+    "phone": "(505)205-4252",
+    "company": "Prime Controls",
+    "position": "Project Manager",
+    "area/equipment": "N/A",
+    "email": "b.charley@prime-controls.com",
+    "name": "Brennan Charley"
+  },
+  {
+    "phone": "(512)988-2234",
+    "company": "Prime Controls",
+    "position": "Assistant Project Manager",
+    "area/equipment": "N/A",
+    "email": "j.spalding@prime-controls.com",
+    "name": "Joseph Spalding"
+  },
+  {
+    "phone": "(208)316-7271",
+    "company": "Prime Controls",
+    "position": "Automation Specialist",
+    "area/equipment": "TXE ALL",
+    "email": "a.mes@prime-controls.com",
+    "name": "Abraham Mes"
+  }
+]

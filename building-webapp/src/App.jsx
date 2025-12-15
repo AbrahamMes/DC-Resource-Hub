@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import Hotbar from "./components/Hotbar";
 import Home from "./pages/Home";
-import Schedule from "./pages/Schedule";
+import Schedules from "./pages/Schedules";
 import Contacts from "./pages/Contacts";
 import Issues from "./pages/Issues";
 import Assets from "./pages/Assets";
@@ -26,7 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="schedule" element={<Schedule />} />
+          <Route path="schedules" element={<Schedules />} />
           <Route path="contacts" element={<Contacts />} />
           <Route path="issues" element={<Issues />} />
           <Route path="assets" element={<Assets />} />
