@@ -7,7 +7,7 @@ const links = [
   { to: "/contacts", label: "Contacts" },
   { to: "/issues", label: "Issues" },
   { to: "/assets", label: "Assets" },
-  { to: "/commissioning-report", label: "Commissioning Report" },
+  { to: "/commissioning-report", label: "Commis. Log" },
   { to: "/buildings", label: "Buildings" },
 ];
 
@@ -30,18 +30,19 @@ export default function Hotbar() {
 const navStyle = {
   position: "fixed",
   top: 0,
-  left: 0,
-  right: 0,
+  left: "50%",
+  transform: "translateX(-50%)",
   display: "flex",
   fontSize: 24,
   justifyContent: "center",
   gap: 12,
   padding: "10px 20px",
   borderBottom: "2px solid rgba(255, 255, 255, 0.2)",
-  background: "transparent",
+  background: "#242424",
   alignItems: "center",
   zIndex: 1000,
   height: 56,
+  width: "fit-content",
 };
 
 const linkStyle = {

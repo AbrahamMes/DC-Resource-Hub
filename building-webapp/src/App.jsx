@@ -13,7 +13,7 @@ function Layout() {
   return (
     <div>
       <Hotbar />
-      <main style={{ padding: 20, marginTop: 64 }}>
+      <main style={{ marginTop: 64, paddingTop: 20, paddingLeft: 20, paddingRight: 20 }}>
         <Outlet />
       </main>
     </div>
