@@ -7,7 +7,7 @@ import Issues from "./pages/Issues";
 import Assets from "./pages/Assets";
 import CommissioningReport from "./pages/CommissioningReport";
 import Buildings from "./pages/Buildings";
-import BuildingPage from "./pages/BuildingPage";
+import TTX1 from "./pages/TTX1";
 
 function Layout() {
   return (
@@ -32,7 +32,7 @@ function App() {
           <Route path="assets" element={<Assets />} />
           <Route path="commissioning-report" element={<CommissioningReport />} />
           <Route path="buildings" element={<Buildings />} />
-          <Route path="buildings/:id" element={<BuildingPage />} />
+          <Route path="buildings/:id" element={<TTX1 />} />
         </Route>
       </Routes>
     </BrowserRouter>
