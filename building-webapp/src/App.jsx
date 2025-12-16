@@ -8,6 +8,12 @@ import Assets from "./pages/Assets";
 import CommissioningReport from "./pages/CommissioningReport";
 import Buildings from "./pages/Buildings";
 import TTX1 from "./pages/TTX1";
+import DHA from "./pages/DHA";
+import NS1 from "./pages/NS1";
+import NS2 from "./pages/NS2";
+import DHB from "./pages/DHB";
+import DHC from "./pages/DHC";
+import DHD from "./pages/DHD";
 
 function Layout() {
   return (
@@ -33,6 +39,12 @@ function App() {
           <Route path="commissioning-report" element={<CommissioningReport />} />
           <Route path="buildings" element={<Buildings />} />
           <Route path="buildings/:id" element={<TTX1 />} />
+          <Route path="dha" element={<DHA />} />
+          <Route path="ns1" element={<NS1 />} />
+          <Route path="ns2" element={<NS2 />} />
+          <Route path="dhb" element={<DHB />} />
+          <Route path="dhc" element={<DHC />} />
+          <Route path="dhd" element={<DHD />} />
         </Route>
       </Routes>
     </BrowserRouter>
