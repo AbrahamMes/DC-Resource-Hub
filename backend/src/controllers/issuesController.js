@@ -172,6 +172,34 @@ export const getSyncStatus = (req, res) => {
   }
 };
 
+// Get top N issues by due date (for dashboard/home page)
+export const getTopIssues = (req, res) => {
+  const limit = parseInt(req.query.limit) || 3;
+
+  try {
+    const issues = db.prepare(`
+      SELECT id, display_id, title, description, status, priority, assigned_to,
+             due_date, issue_type, location_description, created_at
+      FROM issues
+      WHERE status != 'closed' AND due_date IS NOT NULL AND due_date != ''
+      ORDER BY due_date ASC
+      LIMIT ?
+    `).all(limit);
+
+    res.json({
+      success: true,
+      count: issues.length,
+      issues
+    });
+  } catch (error) {
+    console.error('Error fetching top issues:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch top issues'
+    });
+  }
+};
+
 // Delete a specific issue from local database
 export const deleteIssue = (req, res) => {
   const { issueId } = req.params;

@@ -1,11 +1,14 @@
 import express from 'express';
-import { getLocalIssues, syncIssues, getSyncStatus, deleteIssue } from '../controllers/issuesController.js';
+import { getLocalIssues, syncIssues, getSyncStatus, getTopIssues, deleteIssue } from '../controllers/issuesController.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get issues from local database (no auth required for reading)
 router.get('/', getLocalIssues);
+
+// Get top N issues by due date
+router.get('/top', getTopIssues);
 
 // Sync issues from ACC API (requires authentication)
 router.post('/sync', requireAuth, syncIssues);
