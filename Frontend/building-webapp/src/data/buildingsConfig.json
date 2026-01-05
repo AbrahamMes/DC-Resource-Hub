@@ -1,0 +1,106 @@
+{
+  "buildings": {
+    "ttx1": {
+      "id": "ttx1",
+      "name": "TTX1",
+      "images": {
+        "default": "/src/assets/TTX1.jpg",
+        "dha": "/src/assets/TTX1_DHA.jpg",
+        "mcups": "/src/assets/TTX1_MCUPs.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "dha", "label": "DHA" },
+        { "key": "mcups", "label": "MCUPs" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "dha": {
+      "id": "dha",
+      "name": "DHA",
+      "images": {
+        "default": "/src/assets/TTX1_DHA.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "dhb": {
+      "id": "dhb",
+      "name": "DHB",
+      "images": {
+        "default": "/src/assets/TTX1_DHB.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "dhc": {
+      "id": "dhc",
+      "name": "DHC",
+      "images": {
+        "default": "/src/assets/TTX1_DHC.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "dhd": {
+      "id": "dhd",
+      "name": "DHD",
+      "images": {
+        "default": "/src/assets/TTX1_DHD.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "ns1": {
+      "id": "ns1",
+      "name": "NS1",
+      "images": {
+        "default": "/src/assets/TTX1_NS1.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    },
+    "ns2": {
+      "id": "ns2",
+      "name": "NS2",
+      "images": {
+        "default": "/src/assets/TTX1_NS2.jpg",
+        "m23": "/src/assets/TTX1_M23.jpg",
+        "m12": "/src/assets/TTX1_M12.jpg"
+      },
+      "views": [
+        { "key": "default", "label": "Default View" },
+        { "key": "m23", "label": "M23 Wires" },
+        { "key": "m12", "label": "M12 Wires" }
+      ]
+    }
+  }
+}

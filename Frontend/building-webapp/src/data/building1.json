@@ -1,0 +1,20 @@
+{
+  "id": "building1",
+  "name": "Main Building",
+  "floors": [
+    {
+      "id": "floor1",
+      "name": "Level 1",
+      "drawings": [
+        {
+          "id": "drawing1",
+          "name": "Architectural Plan",
+          "image": "/floorplans/level1-arch.jpg",
+          "markers": [
+            { "id": "mk1", "type": "equipment", "x": 0.45, "y": 0.62, "label": "AHU-101" }
+          ]
+        }
+      ]
+    }
+  ]
+}
