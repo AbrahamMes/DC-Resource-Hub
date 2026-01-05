@@ -1,8 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import ImageCarousel from "../components/ImageCarousel";
 import TopIssuesSlide from "../components/TopIssuesSlide";
 
 export default function Home() {
+  const navigate = useNavigate();
+
   // Define carousel slides
   const slides = [
     {
@@ -14,14 +17,23 @@ export default function Home() {
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
-            objectFit: 'contain'
+            objectFit: 'contain',
+            cursor: 'pointer'
           }}
+          onClick={() => navigate('/schedules')}
         />
       )
     },
     {
       label: "Top 3 Issues",
-      content: <TopIssuesSlide />
+      content: (
+        <div
+          onClick={() => navigate('/issues')}
+          style={{ cursor: 'pointer', width: '100%', height: '100%' }}
+        >
+          <TopIssuesSlide />
+        </div>
+      )
     },
     {
       label: "Placeholder 1",
