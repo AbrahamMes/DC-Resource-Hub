@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useSite } from "../contexts/SiteContext";
 import * as XLSX from 'xlsx';
 import config from "../config";
 
 const API_BASE_URL = config.apiBaseUrl;
 
 export default function CommissioningReport() {
+  const { currentSite } = useSite();
   const [activeTab, setActiveTab] = useState('form'); // 'form' or 'log'
 
   // Form state
@@ -49,7 +51,7 @@ export default function CommissioningReport() {
 
   const fetchLocations = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/commissioning/locations`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/locations?site=${currentSite}`);
       const data = await response.json();
       if (data.success) {
         setLocations(data.locations || []);
@@ -62,7 +64,7 @@ export default function CommissioningReport() {
   const fetchAssetsByLocation = async (location) => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/commissioning/assets-by-location?location=${encodeURIComponent(location)}`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/assets-by-location?site=${currentSite}&location=${encodeURIComponent(location)}`);
       const data = await response.json();
       if (data.success) {
         setAvailableAssets(data.assets || []);
@@ -77,7 +79,7 @@ export default function CommissioningReport() {
   const fetchEntriesByDate = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/commissioning/entries-by-date`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/entries-by-date?site=${currentSite}`);
       const data = await response.json();
       if (data.success) {
         setEntriesByDate(data.entriesByDate || {});
@@ -125,7 +127,7 @@ export default function CommissioningReport() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/commissioning/submit`, {
+      const response = await fetch(`${API_BASE_URL}/commissioning/submit?site=${currentSite}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)

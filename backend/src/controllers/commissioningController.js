@@ -1,16 +1,17 @@
-import commissioningDb from '../models/commissioningDatabase.js';
-import assetsDb from '../models/assetsDatabase.js';
+import { getCommissioningDb, getAssetsDb } from '../models/databaseManager.js';
 import XLSX from 'xlsx';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const EXCEL_PATH = path.join(__dirname, '../../data/Asset List_Rev10.xlsx');
 
 // Get unique locations from both assets database and Excel file
 export const getLocations = (req, res) => {
   try {
+    const assetsDb = getAssetsDb(req.siteId);
+    const excelPath = path.join(__dirname, '../../data', req.siteConfig.staticAssets.excelFile);
+
     // Get locations from assets database
     const dbLocations = assetsDb.prepare(`
       SELECT DISTINCT location
@@ -24,7 +25,7 @@ export const getLocations = (req, res) => {
     // Also get locations from Excel file as fallback/supplement
     let excelLocations = [];
     try {
-      const workbook = XLSX.readFile(EXCEL_PATH);
+      const workbook = XLSX.readFile(excelPath);
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(worksheet);
@@ -65,6 +66,7 @@ export const getAssetsByLocation = (req, res) => {
       });
     }
 
+    const assetsDb = getAssetsDb(req.siteId);
     const assets = assetsDb.prepare(`
       SELECT id, name, category, description, location
       FROM assets
@@ -106,6 +108,7 @@ export const submitEntry = (req, res) => {
     const day = String(now.getDate()).padStart(2, '0');
     const createdDate = `${year}-${month}-${day}`;
 
+    const commissioningDb = getCommissioningDb(req.siteId);
     const insert = commissioningDb.prepare(`
       INSERT INTO commissioning_entries (
         location, assets, work_performed, issues, needs_wants, delays, initials, submitted_at, created_date
@@ -141,6 +144,7 @@ export const submitEntry = (req, res) => {
 // Get all commissioning entries
 export const getAllEntries = (req, res) => {
   try {
+    const commissioningDb = getCommissioningDb(req.siteId);
     const entries = commissioningDb.prepare(`
       SELECT *
       FROM commissioning_entries
@@ -169,6 +173,9 @@ export const getAllEntries = (req, res) => {
 // Get commissioning entries grouped by date
 export const getEntriesByDate = (req, res) => {
   try {
+    const commissioningDb = getCommissioningDb(req.siteId);
+    const assetsDb = getAssetsDb(req.siteId);
+
     const entries = commissioningDb.prepare(`
       SELECT *
       FROM commissioning_entries
@@ -225,6 +232,7 @@ export const deleteEntry = (req, res) => {
   try {
     const { id } = req.params;
 
+    const commissioningDb = getCommissioningDb(req.siteId);
     const deleteStmt = commissioningDb.prepare(`
       DELETE FROM commissioning_entries WHERE id = ?
     `);

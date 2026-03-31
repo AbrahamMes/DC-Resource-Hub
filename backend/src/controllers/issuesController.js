@@ -1,10 +1,11 @@
 import axios from 'axios';
-import db from '../models/database.js';
+import { getIssuesDb } from '../models/databaseManager.js';
 import config from '../config/config.js';
 
 // Get issues from local database
 export const getLocalIssues = (req, res) => {
   try {
+    const db = getIssuesDb(req.siteId);
     const issues = db.prepare(`
       SELECT id, display_id, title, description, status, priority, assigned_to, assigned_to_id,
              created_at, updated_at, due_date, issue_type, root_cause,
@@ -31,8 +32,9 @@ export const getLocalIssues = (req, res) => {
 // Sync issues from ACC API to local database
 export const syncIssues = async (req, res) => {
   const accessToken = req.session.accessToken;
-  const projectId = req.body.projectId || config.acc.projectId;
-  const assignedToId = req.body.assignedToId || config.acc.assignedToId;
+  const projectId = req.body.projectId || req.siteConfig.accProjectId;
+  const assignedToId = req.body.assignedToId || req.siteConfig.accAssignedToId;
+  const db = getIssuesDb(req.siteId);
 
   try {
     // Fetch ALL issues from ACC API using pagination
@@ -151,6 +153,7 @@ export const syncIssues = async (req, res) => {
 // Get sync status/metadata
 export const getSyncStatus = (req, res) => {
   try {
+    const db = getIssuesDb(req.siteId);
     const result = db.prepare(`
       SELECT
         COUNT(*) as total_issues,
@@ -177,6 +180,7 @@ export const getTopIssues = (req, res) => {
   const limit = parseInt(req.query.limit) || 3;
 
   try {
+    const db = getIssuesDb(req.siteId);
     const issues = db.prepare(`
       SELECT id, display_id, title, description, status, priority, assigned_to,
              due_date, issue_type, location_description, created_at
@@ -205,6 +209,7 @@ export const deleteIssue = (req, res) => {
   const { issueId } = req.params;
 
   try {
+    const db = getIssuesDb(req.siteId);
     const result = db.prepare('DELETE FROM issues WHERE id = ?').run(issueId);
 
     if (result.changes === 0) {

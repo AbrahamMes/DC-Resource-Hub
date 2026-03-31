@@ -2,18 +2,16 @@ import axios from 'axios';
 import XLSX from 'xlsx';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import assetsDb from '../models/assetsDatabase.js';
+import { getAssetsDb } from '../models/databaseManager.js';
 import config from '../config/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Path to the Excel file
-const EXCEL_PATH = path.join(__dirname, '../../data/Asset List_Rev10.xlsx');
-
 // Get assets from local database
 export const getLocalAssets = (req, res) => {
   try {
+    const assetsDb = getAssetsDb(req.siteId);
     // Only return assets that match the Excel filter
     const assets = assetsDb.prepare(`
       SELECT id, name, category, description, location, status, barcode,
@@ -40,9 +38,9 @@ export const getLocalAssets = (req, res) => {
 };
 
 // Read asset data from Excel file
-const getExcelAssetData = () => {
+const getExcelAssetData = (excelPath) => {
   try {
-    const workbook = XLSX.readFile(EXCEL_PATH);
+    const workbook = XLSX.readFile(excelPath);
     const sheetName = workbook.SheetNames[0]; // Use first sheet
     const worksheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(worksheet);
@@ -69,16 +67,20 @@ const getExcelAssetData = () => {
 };
 
 // Read asset names from Excel file (for backward compatibility)
-const getAssetNamesFromExcel = () => {
-  const excelData = getExcelAssetData();
+const getAssetNamesFromExcel = (excelPath) => {
+  const excelData = getExcelAssetData(excelPath);
   return Array.from(excelData.keys());
 };
 
 // Sync assets from ACC API to local database with SSE progress
 export const syncAssetsWithProgress = async (req, res) => {
   const accessToken = req.session.accessToken;
-  const projectId = req.query.projectId || config.acc.projectId;
+  const projectId = req.query.projectId || req.siteConfig.accProjectId;
   const pin = req.query.pin;
+  const assetsDb = getAssetsDb(req.siteId);
+
+  // Get Excel path from site config
+  const excelPath = path.join(__dirname, '../../data', req.siteConfig.staticAssets.excelFile);
 
   // Check PIN first
   if (pin !== config.syncPin) {
@@ -99,7 +101,7 @@ export const syncAssetsWithProgress = async (req, res) => {
   try {
     // Read asset data from Excel
     res.write(`data: ${JSON.stringify({ stage: 'excel', message: 'Reading Excel file...' })}\n\n`);
-    const excelAssetData = getExcelAssetData();
+    const excelAssetData = getExcelAssetData(excelPath);
     const excelAssetNames = Array.from(excelAssetData.keys());
     const excelAssetNamesSet = new Set(excelAssetNames);
 
@@ -297,7 +299,11 @@ export const syncAssetsWithProgress = async (req, res) => {
 // Original sync function (kept for backward compatibility)
 export const syncAssets = async (req, res) => {
   const accessToken = req.session.accessToken;
-  const projectId = req.body.projectId || config.acc.projectId;
+  const projectId = req.body.projectId || req.siteConfig.accProjectId;
+  const assetsDb = getAssetsDb(req.siteId);
+
+  // Get Excel path from site config
+  const excelPath = path.join(__dirname, '../../data', req.siteConfig.staticAssets.excelFile);
 
   if (!accessToken) {
     return res.status(401).json({
@@ -309,7 +315,7 @@ export const syncAssets = async (req, res) => {
 
   try {
     // Read asset data from Excel
-    const excelAssetData = getExcelAssetData();
+    const excelAssetData = getExcelAssetData(excelPath);
     const excelAssetNames = Array.from(excelAssetData.keys());
     const excelAssetNamesSet = new Set(excelAssetNames);
 
@@ -484,6 +490,7 @@ export const syncAssets = async (req, res) => {
 // Get sync status/metadata
 export const getSyncStatus = (req, res) => {
   try {
+    const assetsDb = getAssetsDb(req.siteId);
     const result = assetsDb.prepare(`
       SELECT
         COUNT(*) as total_assets,
@@ -510,6 +517,7 @@ export const deleteAsset = (req, res) => {
   const { assetId } = req.params;
 
   try {
+    const assetsDb = getAssetsDb(req.siteId);
     const result = assetsDb.prepare('DELETE FROM assets WHERE id = ?').run(assetId);
 
     if (result.changes === 0) {

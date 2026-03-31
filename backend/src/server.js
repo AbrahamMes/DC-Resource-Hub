@@ -6,6 +6,9 @@ import authRoutes from './routes/auth.js';
 import issuesRoutes from './routes/issues.js';
 import assetsRoutes from './routes/assets.js';
 import commissioningRoutes from './routes/commissioning.js';
+import sitesRoutes from './routes/sites.js';
+import staticRoutes from './routes/static.js';
+import schedulesRoutes from './routes/schedules.js';
 
 const app = express();
 
@@ -32,20 +35,22 @@ app.use(session({
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/sites', sitesRoutes);
+app.use('/api/static', staticRoutes);
 app.use('/api/issues', issuesRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/commissioning', commissioningRoutes);
+app.use('/api/schedules', schedulesRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    multiSite: true,
     config: {
       hasClientId: !!config.aps.clientId,
-      hasClientSecret: !!config.aps.clientSecret,
-      projectId: config.acc.projectId,
-      assignedToId: config.acc.assignedToId
+      hasClientSecret: !!config.aps.clientSecret
     }
   });
 });
@@ -62,11 +67,11 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = config.port;
 app.listen(PORT, () => {
-  console.log(`🚀 ACC Issues Backend running on http://localhost:${PORT}`);
+  console.log(`🚀 ACC Issues Backend (Multi-Site) running on http://localhost:${PORT}`);
   console.log(`📊 Frontend URL: ${config.frontendUrl}`);
   console.log(`🔑 APS Client ID configured: ${!!config.aps.clientId}`);
-  console.log(`📁 Project ID: ${config.acc.projectId}`);
-  console.log(`👤 Assigned To ID: ${config.acc.assignedToId}`);
+  console.log(`🌐 Multi-site support enabled`);
+  console.log(`📍 Available sites: Check /api/sites`);
 });
 
 export default app;

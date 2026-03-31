@@ -1,62 +1,102 @@
-import React, { useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
-import ImageViewer from "../components/viewer/ImageViewer";
-import buildingsConfig from "../data/buildingsConfig.json";
+import React, { useState, useEffect } from "react";
+import { useParams, Navigate, Link } from "react-router-dom";
+import { useSite } from "../contexts/SiteContext";
+import config from "../config";
+
+const API_BASE_URL = config.apiBaseUrl;
 
 export default function BuildingView() {
   const { id } = useParams();
-  const building = buildingsConfig.buildings[id?.toLowerCase()];
+  const { currentSite } = useSite();
+  const [building, setBuilding] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [activeImageKey, setActiveImageKey] = useState("default");
+  useEffect(() => {
+    if (currentSite && id) {
+      fetchBuilding();
+    }
+  }, [currentSite, id]);
 
-  // If building not found, redirect to buildings list
-  if (!building) {
+  const fetchBuilding = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${id}`);
+      const data = await response.json();
+
+      if (data.success && data.building) {
+        setBuilding(data.building);
+      } else {
+        setError('Building not found');
+      }
+    } catch (err) {
+      console.error('Error fetching building:', err);
+      setError('Failed to load building');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div style={{ padding: 20 }}>Loading building...</div>;
+  }
+
+  if (error || !building) {
     return <Navigate to="/buildings" replace />;
   }
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>{building.name}</h1>
-
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginTop: 12 }}>
-        <div style={{ width: "80%" }}>
-          <ImageViewer imageSrc={building.images[activeImageKey]} markers={[]} />
-        </div>
-
-        <aside style={{ width: "20%" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {building.views.map((view) => (
-              <button
-                key={view.key}
-                onClick={() => setActiveImageKey(view.key)}
-                style={{
-                  padding: "10px 16px",
-                  backgroundColor: activeImageKey === view.key ? "#0696D7" : "#1e1e1e",
-                  color: "#fff",
-                  border: `1px solid ${activeImageKey === view.key ? "#0696D7" : "#333"}`,
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  fontWeight: activeImageKey === view.key ? 600 : 400,
-                  transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  if (activeImageKey !== view.key) {
-                    e.target.style.backgroundColor = "#252525";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeImageKey !== view.key) {
-                    e.target.style.backgroundColor = "#1e1e1e";
-                  }
-                }}
-              >
-                {view.label}
-              </button>
-            ))}
-          </div>
-        </aside>
+      <div style={{ marginBottom: 20 }}>
+        <Link to="/buildings" style={{ color: '#0696D7', textDecoration: 'none' }}>
+          ← Back to Buildings
+        </Link>
       </div>
+
+      <h1>{building.name}</h1>
+      {building.description && (
+        <p style={{ color: '#888', marginTop: 8 }}>{building.description}</p>
+      )}
+
+      <h2 style={{ marginTop: 30, marginBottom: 16, fontSize: 24 }}>Rooms & Areas</h2>
+
+      {building.rooms && building.rooms.length > 0 ? (
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          {building.rooms.map((room) => (
+            <Link
+              key={room.id}
+              to={`/buildings/${id}/rooms/${room.id}`}
+              style={{
+                display: "block",
+                padding: "16px 20px",
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 6,
+                color: "inherit",
+                textDecoration: "none",
+                minWidth: 150,
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#0696D7";
+                e.currentTarget.style.backgroundColor = "rgba(6, 150, 215, 0.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <div style={{ fontWeight: 600, fontSize: 16 }}>{room.name}</div>
+              {room.fullName && (
+                <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{room.fullName}</div>
+              )}
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p style={{ color: '#888' }}>No rooms configured for this building yet.</p>
+      )}
     </div>
   );
 }

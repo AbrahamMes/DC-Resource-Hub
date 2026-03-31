@@ -1,7 +1,11 @@
 import express from 'express';
 import { getLocalAssets, syncAssets, syncAssetsWithProgress, getSyncStatus, deleteAsset } from '../controllers/assetsController.js';
+import { siteContext } from '../middleware/siteContext.js';
 
 const router = express.Router();
+
+// Apply site context to all routes
+router.use(siteContext);
 
 // Get assets from local database
 router.get('/', getLocalAssets);

@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useSite } from "../contexts/SiteContext";
 
 export default function TopIssuesSlide() {
+  const { currentSite } = useSite();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchTopIssues();
-  }, []);
+    if (currentSite) {
+      fetchTopIssues();
+    }
+  }, [currentSite]);
 
   const fetchTopIssues = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/issues/top?limit=3');
+      const response = await fetch(`http://localhost:3001/api/issues/top?site=${currentSite}&limit=3`);
       const data = await response.json();
 
       if (data.success) {

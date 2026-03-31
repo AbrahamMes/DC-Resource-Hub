@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useSite } from "../contexts/SiteContext";
 import config from "../config";
 
 const API_BASE_URL = config.apiBaseUrl;
 
 export default function Assets() {
+  const { currentSite } = useSite();
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -21,11 +23,17 @@ export default function Assets() {
   const [categories, setCategories] = useState([]);
   const [statuses, setStatuses] = useState([]);
 
+  // Reload data when site changes
+  useEffect(() => {
+    if (currentSite) {
+      checkAuthStatus();
+      fetchAssets();
+      fetchSyncStatus();
+    }
+  }, [currentSite]);
+
   // Check authentication status on mount
   useEffect(() => {
-    checkAuthStatus();
-    fetchAssets();
-    fetchSyncStatus();
 
     // Check for OAuth callback parameters
     const params = new URLSearchParams(window.location.search);
@@ -75,10 +83,11 @@ export default function Assets() {
   }, [showAuthSuccess]);
 
   const fetchAssets = async () => {
+    if (!currentSite) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/assets`, {
+      const response = await fetch(`${API_BASE_URL}/assets?site=${currentSite}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -95,8 +104,9 @@ export default function Assets() {
   };
 
   const fetchSyncStatus = async () => {
+    if (!currentSite) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/assets/sync-status`, {
+      const response = await fetch(`${API_BASE_URL}/assets/sync-status?site=${currentSite}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -136,8 +146,9 @@ export default function Assets() {
     setSyncProgress(null);
     setError(null);
 
+    if (!currentSite) return;
     try {
-      const eventSource = new EventSource(`${API_BASE_URL}/assets/sync-progress?pin=${encodeURIComponent(pin)}`, {
+      const eventSource = new EventSource(`${API_BASE_URL}/assets/sync-progress?site=${currentSite}&pin=${encodeURIComponent(pin)}`, {
         withCredentials: true
       });
 

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { SiteProvider } from "./contexts/SiteContext";
 import Hotbar from "./components/Hotbar";
 import Home from "./pages/Home";
 import Schedules from "./pages/Schedules";
@@ -8,6 +9,7 @@ import Assets from "./pages/Assets";
 import CommissioningReport from "./pages/CommissioningReport";
 import Buildings from "./pages/Buildings";
 import BuildingView from "./pages/BuildingView";
+import RoomView from "./pages/RoomView";
 
 function Layout() {
   return (
@@ -23,18 +25,21 @@ function Layout() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="schedules" element={<Schedules />} />
-          <Route path="contacts" element={<Contacts />} />
-          <Route path="issues" element={<Issues />} />
-          <Route path="assets" element={<Assets />} />
-          <Route path="commissioning-report" element={<CommissioningReport />} />
-          <Route path="buildings" element={<Buildings />} />
-          <Route path="buildings/:id" element={<BuildingView />} />
-        </Route>
-      </Routes>
+      <SiteProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="schedules" element={<Schedules />} />
+            <Route path="contacts" element={<Contacts />} />
+            <Route path="issues" element={<Issues />} />
+            <Route path="assets" element={<Assets />} />
+            <Route path="commissioning-report" element={<CommissioningReport />} />
+            <Route path="buildings" element={<Buildings />} />
+            <Route path="buildings/:id" element={<BuildingView />} />
+            <Route path="buildings/:id/rooms/:roomId" element={<RoomView />} />
+          </Route>
+        </Routes>
+      </SiteProvider>
     </BrowserRouter>
   );
 }

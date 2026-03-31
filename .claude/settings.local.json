@@ -14,7 +14,9 @@
       "Bash(git init:*)",
       "Bash(git config:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(curl:*)",
+      "mcp__main-filesystem__list_directory"
     ]
   }
 }

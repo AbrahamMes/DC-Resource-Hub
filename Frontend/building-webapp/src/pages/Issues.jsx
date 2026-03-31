@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useSite } from "../contexts/SiteContext";
 import config from "../config";
 
 const API_BASE_URL = config.apiBaseUrl;
 
 export default function Issues() {
+  const { currentSite } = useSite();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -18,11 +20,17 @@ export default function Issues() {
   const [statusFilter, setStatusFilter] = useState('Open');
   const [sortOrder, setSortOrder] = useState('asc'); // asc = earliest first, desc = latest first
 
+  // Reload data when site changes
+  useEffect(() => {
+    if (currentSite) {
+      checkAuthStatus();
+      fetchIssues();
+      fetchSyncStatus();
+    }
+  }, [currentSite]);
+
   // Check authentication status on mount
   useEffect(() => {
-    checkAuthStatus();
-    fetchIssues();
-    fetchSyncStatus();
 
     // Check for OAuth callback parameters
     const params = new URLSearchParams(window.location.search);
@@ -64,10 +72,11 @@ export default function Issues() {
   }, [showAuthSuccess]);
 
   const fetchIssues = async () => {
+    if (!currentSite) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/issues`, {
+      const response = await fetch(`${API_BASE_URL}/issues?site=${currentSite}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -93,8 +102,9 @@ export default function Issues() {
   };
 
   const fetchSyncStatus = async () => {
+    if (!currentSite) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/issues/sync-status`, {
+      const response = await fetch(`${API_BASE_URL}/issues/sync-status?site=${currentSite}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -124,10 +134,11 @@ export default function Issues() {
       return;
     }
 
+    if (!currentSite) return;
     setSyncing(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/issues/sync`, {
+      const response = await fetch(`${API_BASE_URL}/issues/sync?site=${currentSite}`, {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -1,0 +1,23 @@
+{
+  "_comment": "Maps ACC asset location paths to building and room IDs for display on floor plans",
+  "_format": "Each key is a location pattern from ACC assets",
+  "_mapping": "buildingId and roomId must match the IDs in sites.js configuration",
+
+  "mappings": [
+    {
+      "accLocation": "TXE1 > AREA A > Ground > 1A1",
+      "buildingId": "txe1",
+      "roomId": "dha",
+      "notes": "TXE1 building, Data Hall A"
+    }
+  ],
+
+  "patterns": [
+    {
+      "pattern": "^TXE1 > AREA A > Ground > 1A\\d+$",
+      "buildingId": "txe1",
+      "roomId": "dha",
+      "notes": "Matches all 1A zones in TXE1 Data Hall A"
+    }
+  ]
+}

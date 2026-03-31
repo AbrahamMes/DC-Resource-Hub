@@ -19,10 +19,8 @@ export const config = {
     apiBaseUrl: 'https://developer.api.autodesk.com'
   },
 
-  // ACC Project Configuration
+  // ACC API Configuration (project-specific IDs moved to sites.js)
   acc: {
-    projectId: process.env.ACC_PROJECT_ID || 'PLACEHOLDER_PROJECT_ID',
-    assignedToId: process.env.ACC_ASSIGNED_TO_ID || 'PLACEHOLDER_ASSIGNED_TO_ID',
     issuesApiUrl: 'https://developer.api.autodesk.com/construction/issues/v1',
     assetsApiUrl: 'https://developer.api.autodesk.com/construction/assets/v2'
   },

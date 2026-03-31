@@ -1,0 +1,108 @@
+{
+  "_comment": "Maps ACC asset location paths to building and room IDs for display on floor plans",
+  "_format": "Each key is a location pattern from ACC assets (e.g., 'DCB1 > AREA A > Ground > 1A1')",
+  "_mapping": "buildingId and roomId must match the IDs in sites.js configuration",
+
+  "mappings": [
+    {
+      "accLocation": "DCB1 > AREA A > Ground > 1A1",
+      "buildingId": "ttx1",
+      "roomId": "dha",
+      "notes": "DCB1 = TTX1, 1A1 = Data Hall A"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Ground > 1A2",
+      "buildingId": "ttx1",
+      "roomId": "dha",
+      "notes": "DCB1 = TTX1, 1A2 = Data Hall A"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Ground > 1B1",
+      "buildingId": "ttx1",
+      "roomId": "dhb",
+      "notes": "DCB1 = TTX1, 1B1 = Data Hall B"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Ground > 1B2",
+      "buildingId": "ttx1",
+      "roomId": "dhb",
+      "notes": "DCB1 = TTX1, 1B2 = Data Hall B"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Mezzanine > Ground-1A",
+      "buildingId": "ttx1",
+      "roomId": "mep",
+      "notes": "DCB1 = TTX1, Mezzanine Ground-1A = MEP Room"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Mezzanine > Ground-1B",
+      "buildingId": "ttx1",
+      "roomId": "mep",
+      "notes": "DCB1 = TTX1, Mezzanine Ground-1B = MEP Room"
+    },
+    {
+      "accLocation": "DCB1 > AREA A > Roof > UPS Compound",
+      "buildingId": "ttx1",
+      "roomId": "ups",
+      "notes": "DCB1 = TTX1, UPS Compound on Roof"
+    },
+    {
+      "accLocation": "DCB1 > MECH YARD A",
+      "buildingId": "ttx1",
+      "roomId": "yard",
+      "notes": "DCB1 = TTX1, Mechanical Yard"
+    },
+    {
+      "accLocation": "DCB2 > AREA B > Ground > 2A1",
+      "buildingId": "ttx2",
+      "roomId": "dha",
+      "notes": "DCB2 = TTX2, 2A1 = Data Hall A"
+    },
+    {
+      "accLocation": "DCB2 > AREA B > Ground > 2A2",
+      "buildingId": "ttx2",
+      "roomId": "dha",
+      "notes": "DCB2 = TTX2, 2A2 = Data Hall A"
+    },
+    {
+      "accLocation": "DCB2 > AREA B > Ground > 2B1",
+      "buildingId": "ttx2",
+      "roomId": "dhb",
+      "notes": "DCB2 = TTX2, 2B1 = Data Hall B"
+    },
+    {
+      "accLocation": "DCB2 > AREA B > Ground > 2B2",
+      "buildingId": "ttx2",
+      "roomId": "dhb",
+      "notes": "DCB2 = TTX2, 2B2 = Data Hall B"
+    }
+  ],
+
+  "patterns": [
+    {
+      "_comment": "Use regex patterns for more flexible matching if needed",
+      "pattern": "^DCB1 > AREA A > Ground > 1A\\d+$",
+      "buildingId": "ttx1",
+      "roomId": "dha",
+      "notes": "Matches all 1A zones in TTX1 Data Hall A"
+    },
+    {
+      "pattern": "^DCB1 > AREA A > Ground > 1B\\d+$",
+      "buildingId": "ttx1",
+      "roomId": "dhb",
+      "notes": "Matches all 1B zones in TTX1 Data Hall B"
+    },
+    {
+      "pattern": "^DCB2 > AREA B > Ground > 2A\\d+$",
+      "buildingId": "ttx2",
+      "roomId": "dha",
+      "notes": "Matches all 2A zones in TTX2 Data Hall A"
+    },
+    {
+      "pattern": "^DCB2 > AREA B > Ground > 2B\\d+$",
+      "buildingId": "ttx2",
+      "roomId": "dhb",
+      "notes": "Matches all 2B zones in TTX2 Data Hall B"
+    }
+  ]
+}
