@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: acc-issue-display-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    numInstances: 1
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: 1
+      - key: TRUST_PROXY
+        value: 1
+      - key: SESSION_COOKIE_SECURE
+        value: true
+      - key: SESSION_COOKIE_SAME_SITE
+        value: lax
+      - key: ISSUE_REFRESH_INTERVAL_MINUTES
+        value: 60
+      - key: ISSUE_REFRESH_STARTUP_DELAY_SECONDS
+        value: 30
+      - key: APS_CLIENT_ID
+        sync: false
+      - key: APS_CLIENT_SECRET
+        sync: false
+      - key: APS_CALLBACK_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: SITE_ACCESS_PIN
+        sync: false
+      - key: SYNC_PIN
+        sync: false
+    disk:
+      name: acc-issue-display-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 10

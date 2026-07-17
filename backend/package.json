@@ -7,7 +7,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "setup-check": "node setup-check.js"
+    "test": "node --test",
+    "setup-check": "node setup-check.js",
+    "backup": "node scripts/backup.js",
+    "backup:verify": "node scripts/verify-backup.js"
   },
   "dependencies": {
     "axios": "^1.7.9",

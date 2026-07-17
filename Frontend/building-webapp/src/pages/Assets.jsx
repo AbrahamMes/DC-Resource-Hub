@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSite } from "../contexts/SiteContext";
+import AccProjectSelector, { getSavedAccProjectId } from "../components/AccProjectSelector";
 import config from "../config";
 
 const API_BASE_URL = config.apiBaseUrl;
 
 export default function Assets() {
   const { currentSite } = useSite();
+  const [projectId, setProjectId] = useState(() => getSavedAccProjectId(currentSite));
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -16,33 +18,40 @@ export default function Assets() {
   const [showAuthSuccess, setShowAuthSuccess] = useState(false);
 
   // Filter and search state
-  const [nameFilter, setNameFilter] = useState('');
-  const [barcodeFilter, setBarcodeFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [nameFilter, setNameFilter] = useState("");
+  const [barcodeFilter, setBarcodeFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [categories, setCategories] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [expandedAssetId, setExpandedAssetId] = useState(null);
 
   // Reload data when site changes
   useEffect(() => {
-    if (currentSite) {
+    const savedProjectId = getSavedAccProjectId(currentSite);
+    if (savedProjectId !== projectId) {
+      setProjectId(savedProjectId);
+      return;
+    }
+
+    if (currentSite && projectId) {
       checkAuthStatus();
       fetchAssets();
       fetchSyncStatus();
     }
-  }, [currentSite]);
+  }, [currentSite, projectId]);
 
   // Check authentication status on mount
   useEffect(() => {
-
     // Check for OAuth callback parameters
     const params = new URLSearchParams(window.location.search);
-    if (params.get('auth') === 'success') {
-      window.history.replaceState({}, '', '/assets');
+
+    if (params.get("auth") === "success") {
+      window.history.replaceState({}, "", "/assets");
       checkAuthStatus();
-    } else if (params.get('error')) {
-      setError(`Authentication error: ${params.get('error')}`);
-      window.history.replaceState({}, '', '/assets');
+    } else if (params.get("error")) {
+      setError(`Authentication error: ${params.get("error")}`);
+      window.history.replaceState({}, "", "/assets");
     }
   }, []);
 
@@ -51,16 +60,21 @@ export default function Assets() {
     if (assets.length > 0) {
       const uniqueCategories = [...new Set(assets.map(a => a.category).filter(Boolean))].sort();
       const uniqueStatuses = [...new Set(assets.map(a => a.status).filter(Boolean))].sort();
+
       setCategories(uniqueCategories);
       setStatuses(uniqueStatuses);
+    } else {
+      setCategories([]);
+      setStatuses([]);
     }
   }, [assets]);
 
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/status`, {
-        credentials: 'include'
+        credentials: "include"
       });
+
       const data = await response.json();
       setAuthStatus(data);
 
@@ -68,7 +82,7 @@ export default function Assets() {
         setShowAuthSuccess(true);
       }
     } catch (err) {
-      console.error('Failed to check auth status:', err);
+      console.error("Failed to check auth status:", err);
     }
   };
 
@@ -78,23 +92,28 @@ export default function Assets() {
       const timer = setTimeout(() => {
         setShowAuthSuccess(false);
       }, 3000);
+
       return () => clearTimeout(timer);
     }
   }, [showAuthSuccess]);
 
   const fetchAssets = async () => {
     if (!currentSite) return;
+
     setLoading(true);
     setError(null);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/assets?site=${currentSite}`, {
-        credentials: 'include'
+      const response = await fetch(`${API_BASE_URL}/assets?site=${currentSite}&projectId=${encodeURIComponent(projectId)}`, {
+        credentials: "include"
       });
+
       const data = await response.json();
+
       if (data.success) {
         setAssets(data.assets || []);
       } else {
-        setError('Failed to fetch assets');
+        setError("Failed to fetch assets");
       }
     } catch (err) {
       setError(`Error: ${err.message}`);
@@ -105,23 +124,27 @@ export default function Assets() {
 
   const fetchSyncStatus = async () => {
     if (!currentSite) return;
+
     try {
-      const response = await fetch(`${API_BASE_URL}/assets/sync-status?site=${currentSite}`, {
-        credentials: 'include'
+      const response = await fetch(`${API_BASE_URL}/assets/sync-status?site=${currentSite}&projectId=${encodeURIComponent(projectId)}`, {
+        credentials: "include"
       });
+
       const data = await response.json();
+
       if (data.success) {
         setSyncStatus(data);
       }
     } catch (err) {
-      console.error('Failed to fetch sync status:', err);
+      console.error("Failed to fetch sync status:", err);
     }
   };
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, { credentials: "include" });
       const data = await response.json();
+
       if (data.authUrl) {
         window.location.href = data.authUrl;
       }
@@ -132,14 +155,15 @@ export default function Assets() {
 
   const handleSync = async () => {
     if (!authStatus.authenticated) {
-      setError('Please login first to sync assets from ACC');
+      setError("Please login first to sync assets from ACC");
       return;
     }
 
     // Prompt for PIN
-    const pin = window.prompt('This will re-sync all assets from ACC (~11,000+ assets).\n\nPlease enter PIN to confirm:');
+    const pin = window.prompt("This will re-sync all assets from ACC (~11,000+ assets).\n\nPlease enter PIN to confirm:");
+
     if (!pin) {
-      return; // User cancelled
+      return;
     }
 
     setSyncing(true);
@@ -147,8 +171,21 @@ export default function Assets() {
     setError(null);
 
     if (!currentSite) return;
+
     try {
-      const eventSource = new EventSource(`${API_BASE_URL}/assets/sync-progress?site=${currentSite}&pin=${encodeURIComponent(pin)}`, {
+      const authorizationResponse = await fetch(`${API_BASE_URL}/assets/sync-authorize?site=${encodeURIComponent(currentSite)}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin, projectId })
+      });
+      const authorization = await authorizationResponse.json();
+
+      if (!authorizationResponse.ok || !authorization.success) {
+        throw new Error(authorization.error || "Unable to authorize asset sync");
+      }
+
+      const eventSource = new EventSource(`${API_BASE_URL}/assets/sync-progress?site=${encodeURIComponent(currentSite)}&projectId=${encodeURIComponent(projectId)}`, {
         withCredentials: true
       });
 
@@ -157,41 +194,44 @@ export default function Assets() {
 
         if (data.error) {
           setError(data.error);
+
           if (data.needsAuth) {
             setAuthStatus({ authenticated: false });
           }
+
           if (data.needsPin) {
             alert(data.error);
           }
+
           eventSource.close();
           setSyncing(false);
           return;
         }
 
-        if (data.stage === 'complete') {
+        if (data.stage === "complete") {
           setSyncProgress(data);
           eventSource.close();
           setSyncing(false);
-          alert(`Successfully synced ${data.count} assets from ACC API\n\nTotal stored: ${data.count}\nMatching Excel: ${data.excelMatches || 'N/A'}\nExcel count: ${data.excelCount}\nAPI Requests: ${data.requestCount}`);
+
+          alert(`Successfully synced ${data.count} assets from ACC API\n\nTotal stored: ${data.count}\nMatching Excel: ${data.excelMatches || "N/A"}\nExcel count: ${data.excelCount}\nAPI Requests: ${data.requestCount}`);
+
           fetchAssets();
           fetchSyncStatus();
-        } else if (data.stage === 'error') {
-          setError(data.error || 'Failed to sync assets');
+        } else if (data.stage === "error") {
+          setError(data.error || "Failed to sync assets");
           eventSource.close();
           setSyncing(false);
         } else {
-          // Update progress
           setSyncProgress(data);
         }
       };
 
       eventSource.onerror = (err) => {
-        console.error('SSE error:', err);
-        setError('Connection error during sync');
+        console.error("SSE error:", err);
+        setError("Connection error during sync");
         eventSource.close();
         setSyncing(false);
       };
-
     } catch (err) {
       setError(`Sync failed: ${err.message}`);
       setSyncing(false);
@@ -199,12 +239,31 @@ export default function Assets() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
+
     try {
       return new Date(dateString).toLocaleDateString();
     } catch {
       return dateString;
     }
+  };
+
+  const openAssetInAcc = (asset) => {
+    const accProjectId = projectId || asset.container_id;
+    const assetId = asset.id;
+
+    if (!accProjectId) {
+      alert("Missing ACC project ID for this site.");
+      return;
+    }
+
+    if (!assetId) {
+      alert("Missing ACC asset ID for this asset.");
+      return;
+    }
+
+    const url = `https://acc.autodesk.com/build/assets/projects/${accProjectId}/assets?assetId=${encodeURIComponent(assetId)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   // Filter assets
@@ -226,14 +285,14 @@ export default function Assets() {
     }
 
     // Filter by category
-    if (categoryFilter !== 'all') {
+    if (categoryFilter !== "all") {
       filtered = filtered.filter(asset =>
         asset.category === categoryFilter
       );
     }
 
     // Filter by status
-    if (statusFilter !== 'all') {
+    if (statusFilter !== "all") {
       filtered = filtered.filter(asset =>
         asset.status === statusFilter
       );
@@ -245,35 +304,41 @@ export default function Assets() {
   const filteredAssets = getFilteredAssets();
 
   return (
-    <div style={{ padding: '20px 20px' }}>
-      <div style={{ marginBottom: '10px' }}>
-        <h1 style={{ margin: '0 0 5px 0', fontSize: '24px' }}>Assets</h1>
-        <p style={{ margin: '0', color: '#666', fontSize: '13px' }}>ACC Assets filtered by Asset List Excel file</p>
+    <div className="page-shell data-page" style={{ padding: "20px 20px" }}>
+      <div style={{ marginBottom: "10px" }}>
+        <h1 style={{ margin: "0 0 5px 0", fontSize: "24px" }}>Assets</h1>
+        <p style={{ margin: "0", color: "#666", fontSize: "13px" }}>
+          ACC Assets filtered by Asset List Excel file
+        </p>
+      </div>
+
+      <div style={{ marginBottom: "10px" }}>
+        <AccProjectSelector siteId={currentSite} value={projectId} onChange={setProjectId} />
       </div>
 
       {/* Action Bar */}
-      <div style={{
-        marginBottom: '10px',
-        display: 'flex',
-        gap: '10px',
-        alignItems: 'center',
-        padding: '10px',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px'
+      <div className="page-action-bar" style={{
+        marginBottom: "10px",
+        display: "flex",
+        gap: "10px",
+        alignItems: "center",
+        padding: "10px",
+        backgroundColor: "#f5f5f5",
+        borderRadius: "8px"
       }}>
         {!authStatus.authenticated && (
           <button
             onClick={handleLogin}
             style={{
-              padding: '10px 20px',
-              backgroundColor: '#0696D7',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              marginRight: '10px'
+              padding: "10px 20px",
+              backgroundColor: "#0696D7",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginRight: "10px"
             }}
           >
             🔑 Login with Autodesk
@@ -284,28 +349,28 @@ export default function Assets() {
           onClick={handleSync}
           disabled={syncing}
           style={{
-            padding: '10px 20px',
-            backgroundColor: syncing ? '#ccc' : '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: syncing ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold'
+            padding: "10px 20px",
+            backgroundColor: syncing ? "#ccc" : "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: syncing ? "not-allowed" : "pointer",
+            fontSize: "14px",
+            fontWeight: "bold"
           }}
         >
           {syncing ? (
             syncProgress ? (
-              syncProgress.stage === 'excel' ? '📋 Reading Excel...' :
-              syncProgress.stage === 'fetching' ? `⏳ Fetching... (${syncProgress.totalFetched} assets, ${syncProgress.requestCount} API requests)` :
-              syncProgress.stage === 'saving' ? '💾 Saving to database...' :
-              '⏳ Syncing...'
-            ) : '⏳ Starting sync...'
-          ) : '🔄 Re-query ACC API'}
+              syncProgress.stage === "excel" ? "📋 Reading Excel..." :
+              syncProgress.stage === "fetching" ? `⏳ Fetching... (${syncProgress.totalFetched} assets, ${syncProgress.requestCount} API requests)` :
+              syncProgress.stage === "saving" ? "💾 Saving to database..." :
+              "⏳ Syncing..."
+            ) : "⏳ Starting sync..."
+          ) : "🔄 Re-query ACC API"}
         </button>
 
         {syncStatus && (
-          <div style={{ marginLeft: 'auto', fontSize: '14px', color: '#666' }}>
+          <div style={{ marginLeft: "auto", fontSize: "14px", color: "#666" }}>
             <strong>Database:</strong> {syncStatus.total_assets} assets
             {syncStatus.last_sync && (
               <> | <strong>Last Sync:</strong> {formatDate(syncStatus.last_sync)}</>
@@ -316,13 +381,13 @@ export default function Assets() {
 
       {/* Auth Status */}
       {showAuthSuccess && (
-        <div style={{
-          marginBottom: '10px',
-          padding: '8px 10px',
-          backgroundColor: '#d4edda',
-          borderRadius: '5px',
-          color: '#155724',
-          fontSize: '13px'
+        <div className="page-filters" style={{
+          marginBottom: "10px",
+          padding: "8px 10px",
+          backgroundColor: "#d4edda",
+          borderRadius: "5px",
+          color: "#155724",
+          fontSize: "13px"
         }}>
           ✅ Authenticated with Autodesk
         </div>
@@ -331,12 +396,12 @@ export default function Assets() {
       {/* Error Message */}
       {error && (
         <div style={{
-          marginBottom: '10px',
-          padding: '8px 10px',
-          backgroundColor: '#f8d7da',
-          borderRadius: '5px',
-          color: '#721c24',
-          fontSize: '13px'
+          marginBottom: "10px",
+          padding: "8px 10px",
+          backgroundColor: "#f8d7da",
+          borderRadius: "5px",
+          color: "#721c24",
+          fontSize: "13px"
         }}>
           ⚠️ {error}
         </div>
@@ -345,17 +410,17 @@ export default function Assets() {
       {/* Filter Controls */}
       {assets.length > 0 && (
         <div style={{
-          marginBottom: '10px',
-          padding: '10px',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          display: 'flex',
-          gap: '10px',
-          alignItems: 'center',
-          flexWrap: 'wrap'
+          marginBottom: "10px",
+          padding: "10px",
+          backgroundColor: "#f8f9fa",
+          borderRadius: "8px",
+          display: "flex",
+          gap: "10px",
+          alignItems: "center",
+          flexWrap: "wrap"
         }}>
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 'bold', color: '#a0a0a0' }}>
+          <div style={{ flex: "1", minWidth: "200px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", fontWeight: "bold", color: "#a0a0a0" }}>
               Search by Name:
             </label>
             <input
@@ -364,19 +429,19 @@ export default function Assets() {
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                fontSize: '13px',
-                color: '#212529',
-                backgroundColor: '#fff'
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                fontSize: "13px",
+                color: "#212529",
+                backgroundColor: "#fff"
               }}
             />
           </div>
 
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 'bold', color: '#a0a0a0' }}>
+          <div style={{ minWidth: "150px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", fontWeight: "bold", color: "#a0a0a0" }}>
               Search by Barcode:
             </label>
             <input
@@ -385,32 +450,32 @@ export default function Assets() {
               value={barcodeFilter}
               onChange={(e) => setBarcodeFilter(e.target.value)}
               style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                fontSize: '13px',
-                color: '#212529',
-                backgroundColor: '#fff'
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                fontSize: "13px",
+                color: "#212529",
+                backgroundColor: "#fff"
               }}
             />
           </div>
 
-          <div style={{ minWidth: '180px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 'bold', color: '#a0a0a0' }}>
+          <div style={{ minWidth: "180px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", fontWeight: "bold", color: "#a0a0a0" }}>
               Filter by Category:
             </label>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                fontSize: '13px',
-                color: '#212529',
-                backgroundColor: '#fff'
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                fontSize: "13px",
+                color: "#212529",
+                backgroundColor: "#fff"
               }}
             >
               <option value="all">All Categories</option>
@@ -420,21 +485,21 @@ export default function Assets() {
             </select>
           </div>
 
-          <div style={{ minWidth: '150px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: 'bold', color: '#a0a0a0' }}>
+          <div style={{ minWidth: "150px" }}>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", fontWeight: "bold", color: "#a0a0a0" }}>
               Filter by Status:
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ced4da',
-                borderRadius: '4px',
-                fontSize: '13px',
-                color: '#212529',
-                backgroundColor: '#fff'
+                width: "100%",
+                padding: "8px",
+                border: "1px solid #ced4da",
+                borderRadius: "4px",
+                fontSize: "13px",
+                color: "#212529",
+                backgroundColor: "#fff"
               }}
             >
               <option value="all">All Statuses</option>
@@ -444,23 +509,23 @@ export default function Assets() {
             </select>
           </div>
 
-          <div style={{ minWidth: '120px', alignSelf: 'flex-end' }}>
+          <div style={{ minWidth: "120px", alignSelf: "flex-end" }}>
             <button
               onClick={() => {
-                setNameFilter('');
-                setBarcodeFilter('');
-                setCategoryFilter('all');
-                setStatusFilter('all');
+                setNameFilter("");
+                setBarcodeFilter("");
+                setCategoryFilter("all");
+                setStatusFilter("all");
               }}
               style={{
-                padding: '8px 15px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: 'bold'
+                padding: "8px 15px",
+                backgroundColor: "#6c757d",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "13px",
+                fontWeight: "bold"
               }}
             >
               Clear Filters
@@ -471,15 +536,15 @@ export default function Assets() {
 
       {/* Assets Table */}
       {loading && assets.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>
+        <div style={{ textAlign: "center", padding: "40px" }}>
           <p>Loading assets...</p>
         </div>
       ) : assets.length === 0 ? (
         <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px'
+          textAlign: "center",
+          padding: "40px",
+          backgroundColor: "#f8f9fa",
+          borderRadius: "8px"
         }}>
           <h3>No assets found</h3>
           <p>Assets have not been synced yet.</p>
@@ -487,24 +552,24 @@ export default function Assets() {
         </div>
       ) : filteredAssets.length === 0 ? (
         <div style={{
-          textAlign: 'center',
-          padding: '40px',
-          backgroundColor: '#fff3cd',
-          borderRadius: '8px'
+          textAlign: "center",
+          padding: "40px",
+          backgroundColor: "#fff3cd",
+          borderRadius: "8px"
         }}>
           <h3>No assets match your filters</h3>
           <p>Try adjusting your search criteria or click "Clear Filters"</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-scroll" style={{ overflowX: "auto" }}>
           <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            backgroundColor: 'white',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+            width: "100%",
+            borderCollapse: "collapse",
+            backgroundColor: "white",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
           }}>
             <thead>
-              <tr style={{ backgroundColor: '#f8f9fa' }}>
+              <tr style={{ backgroundColor: "#f8f9fa" }}>
                 <th style={tableHeaderStyle}>Name</th>
                 <th style={tableHeaderStyle}>Barcode</th>
                 <th style={tableHeaderStyle}>Category</th>
@@ -515,22 +580,29 @@ export default function Assets() {
             </thead>
             <tbody>
               {filteredAssets.map((asset, index) => (
+                <React.Fragment key={asset.id || index}>
                 <tr
-                  key={asset.id || index}
-                  style={{
-                    borderBottom: '1px solid #dee2e6'
+                  onClick={() => setExpandedAssetId(expandedAssetId === asset.id ? null : asset.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setExpandedAssetId(expandedAssetId === asset.id ? null : asset.id);
+                    }
                   }}
+                  tabIndex={0}
+                  aria-expanded={expandedAssetId === asset.id}
+                  style={{ borderBottom: "1px solid #dee2e6", cursor: "pointer" }}
                 >
-                  <td style={{ ...tableCellStyle, maxWidth: '300px' }}>
-                    <strong>{asset.name || 'N/A'}</strong>
+                  <td style={{ ...tableCellStyle, maxWidth: "300px" }}>
+                    <strong>{asset.name || "N/A"}</strong>
                     {asset.description && (
                       <div style={{
-                        fontSize: '12px',
-                        color: '#666',
-                        marginTop: '4px',
-                        whiteSpace: 'pre-wrap',
-                        wordWrap: 'break-word',
-                        overflowWrap: 'break-word'
+                        fontSize: "12px",
+                        color: "#666",
+                        marginTop: "4px",
+                        whiteSpace: "pre-wrap",
+                        wordWrap: "break-word",
+                        overflowWrap: "break-word"
                       }}>
                         {asset.description}
                       </div>
@@ -538,96 +610,153 @@ export default function Assets() {
                   </td>
                   <td style={tableCellStyle}>
                     {asset.barcode ? (
-                      <code style={{ fontSize: '12px', backgroundColor: '#f8f9fa', padding: '2px 6px', borderRadius: '3px' }}>
+                      <code style={{ fontSize: "12px", backgroundColor: "#f8f9fa", padding: "2px 6px", borderRadius: "3px" }}>
                         {asset.barcode}
                       </code>
-                    ) : 'N/A'}
+                    ) : "N/A"}
                   </td>
                   <td style={tableCellStyle}>
-                    <div style={{ fontSize: '12px', maxWidth: '200px', wordWrap: 'break-word' }}>
-                      {asset.category || 'N/A'}
+                    <div style={{ fontSize: "12px", maxWidth: "200px", wordWrap: "break-word" }}>
+                      {asset.category || "N/A"}
                     </div>
                   </td>
                   <td style={tableCellStyle}>
                     <span style={getStatusStyle(asset.status)}>
-                      {asset.status || 'N/A'}
+                      {asset.status || "N/A"}
                     </span>
                   </td>
                   <td style={tableCellStyle}>
-                    <div style={{ fontSize: '12px', maxWidth: '200px', wordWrap: 'break-word' }}>
-                      {asset.location || 'N/A'}
+                    <div style={{ fontSize: "12px", maxWidth: "200px", wordWrap: "break-word" }}>
+                      {asset.location || "N/A"}
                     </div>
                   </td>
                   <td style={tableCellStyle}>
                     <button
-                      onClick={() => {
-                        const projectId = 'b38e25ea-eca5-4a70-9f0b-85eeb399056f';
-                        const url = `https://acc.autodesk.com/build/assets/projects/${projectId}/assets?assetId=${asset.id}`;
-                        window.open(url, '_blank');
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setExpandedAssetId(expandedAssetId === asset.id ? null : asset.id);
                       }}
                       style={{
-                        padding: '4px 8px',
-                        backgroundColor: '#0696D7',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
+                        padding: "4px 8px",
+                        marginRight: "6px",
+                        backgroundColor: "#6c757d",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "12px"
                       }}
-                      onMouseOver={(e) => e.target.style.backgroundColor = '#0575b3'}
-                      onMouseOut={(e) => e.target.style.backgroundColor = '#0696D7'}
                     >
-                      🔗 Link
+                      {expandedAssetId === asset.id ? "Hide details" : "Details"}
+                    </button>
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openAssetInAcc(asset);
+                      }}
+                      style={{
+                        padding: "4px 8px",
+                        backgroundColor: "#0696D7",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                        fontWeight: "bold"
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = "#0575b3"}
+                      onMouseOut={(e) => e.target.style.backgroundColor = "#0696D7"}
+                    >
+                      🔗 Open ACC
                     </button>
                   </td>
                 </tr>
+                {expandedAssetId === asset.id && (
+                  <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "1px solid #dee2e6" }}>
+                    <td colSpan={6} style={{ padding: "14px 18px" }}>
+                      <div style={assetDetailsGridStyle}>
+                        <AssetDetail label="Asset ID" value={asset.id} />
+                        <AssetDetail label="Category ID" value={asset.category_id} />
+                        <AssetDetail label="Status ID" value={asset.status_id} />
+                        <AssetDetail label="Location ID" value={asset.location_id} />
+                        <AssetDetail label="Discipline" value={asset.discipline} />
+                        <AssetDetail label="Equipment Type" value={asset.equipment_type} />
+                        <AssetDetail label="Manufacturer" value={asset.manufacturer} />
+                        <AssetDetail label="Model Number" value={asset.model_number} />
+                        <AssetDetail label="Serial Number" value={asset.serial_number} />
+                        <AssetDetail label="Part Number" value={asset.meta_part_number} />
+                        <AssetDetail label="Warranty Start" value={formatDate(asset.warranty_start_date)} />
+                        <AssetDetail label="Warranty End" value={formatDate(asset.warranty_end_date)} />
+                        <AssetDetail label="Created" value={formatDate(asset.created_at)} />
+                        <AssetDetail label="Updated" value={formatDate(asset.updated_at)} />
+                        <AssetDetail label="Active" value={asset.is_active === null ? "N/A" : asset.is_active ? "Yes" : "No"} />
+                        <AssetDetail label="Last Synced" value={formatDate(asset.synced_at)} />
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
         </div>
       )}
 
-      <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
+      <div style={{ marginTop: "20px", fontSize: "12px", color: "#666" }}>
         <p>💡 <strong>Tip:</strong> Login with your Autodesk account to sync assets from ACC API. Only assets listed in the Excel file will be synced.</p>
       </div>
     </div>
   );
 }
 
+function AssetDetail({ label, value }) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ color: "#6c757d", fontSize: "11px", fontWeight: "bold", textTransform: "uppercase" }}>{label}</div>
+      <div style={{ color: "#212529", fontSize: "13px", overflowWrap: "anywhere" }}>{value || "N/A"}</div>
+    </div>
+  );
+}
+
 // Styles
 const tableHeaderStyle = {
-  padding: '12px',
-  textAlign: 'left',
-  fontWeight: 'bold',
-  borderBottom: '2px solid #dee2e6',
-  fontSize: '14px',
-  color: '#212529'
+  padding: "12px",
+  textAlign: "left",
+  fontWeight: "bold",
+  borderBottom: "2px solid #dee2e6",
+  fontSize: "14px",
+  color: "#212529"
 };
 
 const tableCellStyle = {
-  padding: '12px',
-  fontSize: '13px',
-  color: '#212529'
+  padding: "12px",
+  fontSize: "13px",
+  color: "#212529"
 };
 
 const getStatusStyle = (status) => {
   const baseStyle = {
-    padding: '4px 8px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    fontWeight: 'bold'
+    padding: "4px 8px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontWeight: "bold"
   };
 
   const statusColors = {
-    'active': { backgroundColor: '#d4edda', color: '#155724' },
-    'inactive': { backgroundColor: '#f8d7da', color: '#721c24' },
-    'pending': { backgroundColor: '#fff3cd', color: '#856404' },
-    'in_progress': { backgroundColor: '#d1ecf1', color: '#0c5460' }
+    active: { backgroundColor: "#d4edda", color: "#155724" },
+    inactive: { backgroundColor: "#f8d7da", color: "#721c24" },
+    pending: { backgroundColor: "#fff3cd", color: "#856404" },
+    in_progress: { backgroundColor: "#d1ecf1", color: "#0c5460" }
   };
 
   return {
     ...baseStyle,
-    ...(statusColors[status?.toLowerCase()] || { backgroundColor: '#e9ecef', color: '#495057' })
+    ...(statusColors[status?.toLowerCase()] || { backgroundColor: "#e9ecef", color: "#495057" })
   };
+};
+
+const assetDetailsGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: "12px 20px"
 };

@@ -371,7 +371,7 @@ name: asset.clientAssetId || asset.name || asset.assetName || '',
 1. **Increased sync limit**: Changed from 10,100 to 20,000 assets (200 API requests)
 2. **Store all assets**: Now stores ALL ACC assets in database with `excel_data` flag
 3. **Filter on retrieval**: Assets are filtered by Excel match on display, not on sync
-4. **PIN protection**: Added PIN (1725) requirement for re-sync to confirm intention
+4. **PIN protection**: Added an environment-configured PIN requirement for re-sync
 5. **Excel data merging**: Category and Location from Excel file now merged with ACC data
 
 ### Commissioning Report System

@@ -3,6 +3,10 @@
  *
  * Manages database connections for multiple sites with connection caching.
  * Each site has its own set of databases (issues, assets, commissioning).
+ *
+ * This version also safely migrates existing SQLite databases by adding
+ * missing columns. This helps when a site database already exists but was
+ * created before newer columns were added to the app.
  */
 
 import Database from 'better-sqlite3';
@@ -35,6 +39,24 @@ function ensureDir(dirPath) {
 }
 
 /**
+ * Check if a table has a specific column
+ */
+function hasColumn(db, tableName, columnName) {
+  const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+  return columns.some((column) => column.name === columnName);
+}
+
+/**
+ * Add a column only if it does not already exist
+ */
+function addColumnIfMissing(db, tableName, columnName, columnDefinition) {
+  if (!hasColumn(db, tableName, columnName)) {
+    db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition};`);
+    console.log(`✅ Added missing column: ${tableName}.${columnName}`);
+  }
+}
+
+/**
  * Initialize issues database schema
  */
 function initIssuesSchema(db) {
@@ -42,7 +64,7 @@ function initIssuesSchema(db) {
     CREATE TABLE IF NOT EXISTS issues (
       id TEXT PRIMARY KEY,
       display_id INTEGER,
-      title TEXT NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
       description TEXT,
       status TEXT,
       priority TEXT,
@@ -59,25 +81,49 @@ function initIssuesSchema(db) {
       created_by TEXT,
       created_by_id TEXT,
       container_id TEXT,
-      synced_at TEXT NOT NULL,
+      synced_at TEXT NOT NULL DEFAULT '',
       raw_data TEXT
     );
+    CREATE TABLE IF NOT EXISTS issue_sync_status (
+      project_id TEXT PRIMARY KEY,
+      last_attempt_at TEXT,
+      last_success_at TEXT,
+      last_failure_at TEXT,
+      last_error TEXT,
+      last_trigger TEXT,
+      last_issue_count INTEGER
+    );
+  `);
 
+  // Migrate older issues tables
+  addColumnIfMissing(db, 'issues', 'display_id', 'INTEGER');
+  addColumnIfMissing(db, 'issues', 'title', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'issues', 'description', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'status', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'priority', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'assigned_to', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'assigned_to_id', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'created_at', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'updated_at', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'due_date', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'issue_type', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'root_cause', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'location_description', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'owner', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'owner_id', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'created_by', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'created_by_id', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'container_id', 'TEXT');
+  addColumnIfMissing(db, 'issues', 'synced_at', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'issues', 'raw_data', 'TEXT');
+
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_assigned_to_id ON issues(assigned_to_id);
     CREATE INDEX IF NOT EXISTS idx_status ON issues(status);
     CREATE INDEX IF NOT EXISTS idx_created_at ON issues(created_at);
     CREATE INDEX IF NOT EXISTS idx_display_id ON issues(display_id);
+    CREATE INDEX IF NOT EXISTS idx_due_date ON issues(due_date);
   `);
-
-  // Add display_id column if it doesn't exist (migration for existing databases)
-  try {
-    db.exec(`ALTER TABLE issues ADD COLUMN display_id INTEGER;`);
-  } catch (err) {
-    // Column already exists, ignore error
-    if (!err.message.includes('duplicate column name')) {
-      console.error('Error adding display_id column:', err.message);
-    }
-  }
 }
 
 /**
@@ -87,7 +133,7 @@ function initAssetsSchema(db) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS assets (
       id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
+      name TEXT NOT NULL DEFAULT '',
       category TEXT,
       description TEXT,
       location TEXT,
@@ -102,15 +148,38 @@ function initAssetsSchema(db) {
       warranty_start_date TEXT,
       warranty_end_date TEXT,
       container_id TEXT,
-      synced_at TEXT NOT NULL,
+      synced_at TEXT NOT NULL DEFAULT '',
       raw_data TEXT,
-      excel_data TEXT
+      excel_data TEXT DEFAULT 'false'
     );
+  `);
 
+  // Migrate older assets tables
+  addColumnIfMissing(db, 'assets', 'name', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'assets', 'category', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'description', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'location', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'status', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'barcode', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'discipline', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'equipment_type', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'manufacturer', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'model_number', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'serial_number', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'meta_part_number', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'warranty_start_date', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'warranty_end_date', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'container_id', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'synced_at', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'assets', 'raw_data', 'TEXT');
+  addColumnIfMissing(db, 'assets', 'excel_data', "TEXT DEFAULT 'false'");
+
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_asset_name ON assets(name);
     CREATE INDEX IF NOT EXISTS idx_asset_category ON assets(category);
     CREATE INDEX IF NOT EXISTS idx_asset_status ON assets(status);
     CREATE INDEX IF NOT EXISTS idx_asset_location ON assets(location);
+    CREATE INDEX IF NOT EXISTS idx_asset_excel_data ON assets(excel_data);
   `);
 }
 
@@ -121,87 +190,85 @@ function initCommissioningSchema(db) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS commissioning_entries (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      location TEXT NOT NULL,
+      location TEXT NOT NULL DEFAULT '',
       assets TEXT,
       work_performed TEXT,
       issues TEXT,
       needs_wants TEXT,
       delays TEXT,
-      initials TEXT NOT NULL,
-      submitted_at TEXT NOT NULL,
-      created_date TEXT NOT NULL
+      initials TEXT NOT NULL DEFAULT '',
+      submitted_at TEXT NOT NULL DEFAULT '',
+      created_date TEXT NOT NULL DEFAULT ''
     );
+  `);
 
+  // Migrate older commissioning tables
+  addColumnIfMissing(db, 'commissioning_entries', 'location', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'commissioning_entries', 'assets', 'TEXT');
+  addColumnIfMissing(db, 'commissioning_entries', 'work_performed', 'TEXT');
+  addColumnIfMissing(db, 'commissioning_entries', 'issues', 'TEXT');
+  addColumnIfMissing(db, 'commissioning_entries', 'needs_wants', 'TEXT');
+  addColumnIfMissing(db, 'commissioning_entries', 'delays', 'TEXT');
+  addColumnIfMissing(db, 'commissioning_entries', 'initials', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'commissioning_entries', 'submitted_at', "TEXT NOT NULL DEFAULT ''");
+  addColumnIfMissing(db, 'commissioning_entries', 'created_date', "TEXT NOT NULL DEFAULT ''");
+
+  db.exec(`
     CREATE INDEX IF NOT EXISTS idx_commissioning_location ON commissioning_entries(location);
     CREATE INDEX IF NOT EXISTS idx_commissioning_date ON commissioning_entries(created_date);
     CREATE INDEX IF NOT EXISTS idx_commissioning_submitted_at ON commissioning_entries(submitted_at);
   `);
-
-  // Add work_performed column if it doesn't exist (for existing databases)
-  try {
-    db.exec(`ALTER TABLE commissioning_entries ADD COLUMN work_performed TEXT;`);
-  } catch (error) {
-    // Column already exists, ignore error
-    if (!error.message.includes('duplicate column name')) {
-      console.error('Error adding work_performed column:', error);
-    }
-  }
 }
 
 /**
  * Get database connection for a specific site and type
  *
- * @param {string} siteId - Site identifier (e.g., 'TTX')
- * @param {string} dbType - Database type ('issues', 'assets', or 'commissioning')
+ * @param {string} siteId - Site identifier, such as TTX or TXE
+ * @param {string} dbType - Database type: issues, assets, or commissioning
  * @returns {Database} Better-sqlite3 database instance
  */
 function getDatabase(siteId, dbType) {
-  // Create cache key
-  const cacheKey = `${siteId}:${dbType}`;
+  const normalizedSiteId = siteId.toUpperCase();
+  const cacheKey = `${normalizedSiteId}:${dbType}`;
 
-  // Return cached connection if exists
   if (connections.has(cacheKey)) {
     return connections.get(cacheKey);
   }
 
-  // Get site configuration
-  const siteConfig = getSiteConfig(siteId);
+  const siteConfig = getSiteConfig(normalizedSiteId);
 
-  // Get database path from site config
   const dbRelativePath = siteConfig.databases[dbType];
   if (!dbRelativePath) {
-    throw new Error(`Invalid database type: ${dbType}. Must be 'issues', 'assets', or 'commissioning'`);
+    throw new Error(`Invalid database type: ${dbType}. Must be 'issues', 'assets', or 'commissioning'.`);
   }
 
-  // Build absolute path
   const dbPath = path.join(getDataDir(), dbRelativePath);
-
-  // Ensure site directory exists
   const siteDir = path.dirname(dbPath);
+
   ensureDir(siteDir);
 
-  // Create database connection
   const db = new Database(dbPath);
 
-  // Initialize schema based on type
   switch (dbType) {
     case 'issues':
       initIssuesSchema(db);
       break;
+
     case 'assets':
       initAssetsSchema(db);
       break;
+
     case 'commissioning':
       initCommissioningSchema(db);
       break;
+
     default:
       throw new Error(`Unknown database type: ${dbType}`);
   }
 
-  // Cache connection
   connections.set(cacheKey, db);
 
-  console.log(`✅ Database initialized: ${siteId}/${dbType} at ${dbPath}`);
+  console.log(`✅ Database initialized: ${normalizedSiteId}/${dbType} at ${dbPath}`);
 
   return db;
 }
@@ -229,10 +296,10 @@ export function getCommissioningDb(siteId) {
 
 /**
  * Close all database connections
- * Call this on server shutdown
  */
 export function closeAllDatabases() {
   console.log('📦 Closing all database connections...');
+
   for (const [key, db] of connections.entries()) {
     try {
       db.close();
@@ -241,6 +308,7 @@ export function closeAllDatabases() {
       console.error(`❌ Error closing database ${key}:`, error);
     }
   }
+
   connections.clear();
 }
 
@@ -248,7 +316,9 @@ export function closeAllDatabases() {
  * Close specific database connection
  */
 export function closeDatabase(siteId, dbType) {
-  const cacheKey = `${siteId}:${dbType}`;
+  const normalizedSiteId = siteId.toUpperCase();
+  const cacheKey = `${normalizedSiteId}:${dbType}`;
+
   if (connections.has(cacheKey)) {
     const db = connections.get(cacheKey);
     db.close();

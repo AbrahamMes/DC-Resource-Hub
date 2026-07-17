@@ -1,0 +1,118 @@
+TASK 4 - DEFERRED APPLICATION-LEVEL ACCESS CONTROL
+==================================================
+
+Status: UNUSED / NOT ACTIVE
+
+Reason deferred
+---------------
+Autodesk ACC authentication is currently having issues that prevent this design
+from working reliably. This file preserves the implementation plan so task 4 can
+be resumed without rediscovering the required changes.
+
+Intended behavior
+-----------------
+1. Require an authenticated session for all private dashboard pages and API data.
+2. Resolve the signed-in Autodesk user's email during the OAuth callback.
+3. Authorize that email using explicit environment-configured employee/domain lists.
+4. Return HTTP 401 when authentication is missing or expired.
+5. Return HTTP 403 when the Autodesk identity is valid but is not authorized.
+6. Do not treat possession of an Autodesk access token as application authorization.
+
+Environment configuration
+-------------------------
+Add these comma-separated variables to backend/.env.example and hosting settings:
+
+ALLOWED_EMAILS=employee@example.com,manager@example.com
+ALLOWED_EMAIL_DOMAINS=example.com
+
+At least one list should be required. Normalize configured values and profile email
+addresses with trim() and toLowerCase(). Fail startup when both lists are empty.
+
+Backend changes
+---------------
+
+backend/src/config/config.js
+- Add a csvValues(name) helper that splits comma-separated environment variables.
+- Add config.accessControl.allowedEmails and allowedDomains.
+- Add user-profile:read to the Autodesk OAuth scope.
+
+backend/src/controllers/authController.js
+- Add OAuth state generation/validation with crypto.randomBytes(32).
+- Persist the state before returning the Autodesk authorization URL.
+- After exchanging the authorization code, call:
+  GET https://developer.api.autodesk.com/userprofile/v1/users/@me
+  Authorization: Bearer <access token>
+- Read and normalize profile.emailId (with profile.email as fallback).
+- Store a minimal session user object: id, name, and email.
+- Store req.session.authorized as the result of exact-email or domain matching.
+- Save the session before redirecting.
+- Redirect authorized users to / and unauthorized users to /access-denied.
+- Extend GET /api/auth/status with authorized and user fields.
+
+backend/src/middleware/auth.js
+- Add requireAccess middleware. Its checks, in order, should be:
+  a. No access token or user identity: return 401 with needsAuth: true.
+  b. Expired token: return 401 with needsAuth: true.
+  c. req.session.authorized !== true: return 403.
+  d. Otherwise attach req.user and call next().
+
+backend/src/server.js
+- Import requireAccess.
+- Fail closed at startup when both authorization lists are empty.
+- Keep /api/auth public, then place the boundary before every other API router:
+
+  app.use('/api/auth', authRoutes);
+  app.use('/api', requireAccess);
+  app.use('/api/sites', sitesRoutes);
+  // remaining private API routers...
+
+Frontend changes
+----------------
+
+Create Frontend/building-webapp/src/contexts/AuthContext.jsx
+- Fetch /api/auth/status with credentials: "include" on startup.
+- Expose loading, authenticated, authorized, user, login, logout, and refresh.
+- Start login through /api/auth/login and redirect to the returned authUrl.
+- POST /api/auth/logout to allow an unauthorized person to switch accounts.
+
+Create Frontend/building-webapp/src/pages/Login.jsx
+- Show a session-loading state.
+- Redirect authorized sessions to /.
+- Redirect authenticated but unauthorized sessions to /access-denied.
+- Otherwise show the Autodesk sign-in button.
+
+Create Frontend/building-webapp/src/pages/AccessDenied.jsx
+- Explain that Autodesk authentication succeeded but application access was denied.
+- Display the session email when available.
+- Provide a sign-out-and-use-another-account button.
+
+Frontend/building-webapp/src/App.jsx
+- Wrap routes in AuthProvider.
+- Add public /login and /access-denied routes.
+- Add a ProtectedApp layout that redirects based on authentication/authorization.
+- Put SiteProvider and all existing dashboard routes inside ProtectedApp so private
+  data is not requested before authorization succeeds.
+
+All frontend API requests
+- Include credentials: "include" on fetch calls used across origins in development.
+- Use EventSource(..., { withCredentials: true }) for protected SSE requests.
+- Replace remaining hard-coded http://localhost:3001 API URLs with config.apiBaseUrl.
+
+Documentation
+-------------
+- Document ALLOWED_EMAILS and ALLOWED_EMAIL_DOMAINS in README.md,
+  backend/README.md, and backend/.env.example.
+- Keep task 4 unchecked until the ACC authentication issue is resolved and the flow
+  is verified with both an allowed and denied Autodesk account.
+
+Verification checklist when reapplying
+--------------------------------------
+[ ] Anonymous private API request returns 401.
+[ ] Expired session returns 401.
+[ ] Authenticated disallowed email/domain returns 403.
+[ ] Allowed employee can load all dashboard pages and private files.
+[ ] Direct navigation to a private frontend route redirects to /login.
+[ ] Unauthorized page supports sign-out and account switching.
+[ ] OAuth callback rejects missing or mismatched state.
+[ ] Frontend production build succeeds.
+[ ] Backend syntax/tests succeed.

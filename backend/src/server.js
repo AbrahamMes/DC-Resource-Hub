@@ -9,31 +9,105 @@ import commissioningRoutes from './routes/commissioning.js';
 import sitesRoutes from './routes/sites.js';
 import staticRoutes from './routes/static.js';
 import schedulesRoutes from './routes/schedules.js';
+import contactsRoutes from './routes/contacts.js';
+import accessRoutes from './routes/access.js';
+import { requireSiteAccess } from './middleware/siteAccess.js';
+import { assertSingleInstanceEnvironment } from './utils/singleInstanceGuard.js';
+import SqliteSessionStore from './session/sqliteSessionStore.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { startIssueRefreshScheduler } from './services/issueRefreshScheduler.js';
+
+assertSingleInstanceEnvironment();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sessionStore = new SqliteSessionStore({
+  dbPath: path.join(__dirname, '../data/sessions.db'),
+  cleanupIntervalMs: config.sessionCleanupIntervalMs,
+  defaultTtlMs: config.sessionTtlMs
+});
+const issueRefreshScheduler = startIssueRefreshScheduler({
+  sessionStore,
+  intervalMs: config.issueRefreshIntervalMs,
+  startupDelayMs: config.issueRefreshStartupDelayMs,
+  sessionTtlMs: config.sessionTtlMs
+});
 
 const app = express();
 
+// Render and most production hosts terminate HTTPS at a reverse proxy. Express
+// must trust that proxy before it can recognize the original HTTPS request and
+// issue Secure session cookies.
+if (config.trustProxy) {
+  app.set('trust proxy', config.trustProxy);
+}
+
 // Middleware
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: (origin, callback) => {
+    if (!origin || origin === config.frontendUrl) return callback(null, true);
+
+    if (process.env.NODE_ENV !== 'production') {
+      try {
+        const url = new URL(origin);
+        const isLocalHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+        const isPrivateLan = /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(url.hostname);
+        if ((isLocalHost || isPrivateLan) && url.port === '5173') return callback(null, true);
+      } catch {
+        // Invalid origins are rejected below.
+      }
+    }
+
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
   credentials: true
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb', strict: true }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Session configuration
 app.use(session({
+  store: sessionStore,
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to true if using HTTPS
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: config.sessionCookie.secure,
+    httpOnly: config.sessionCookie.httpOnly,
+    sameSite: config.sessionCookie.sameSite,
+    maxAge: config.sessionTtlMs
   }
 }));
 
-// Routes
+// Public routes used before the website has been unlocked.
+app.use('/api/access', accessRoutes);
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    multiSite: true,
+    accessPinConfigured: Boolean(config.siteAccessPin),
+    config: {
+      hasClientId: !!config.aps.clientId,
+      hasClientSecret: !!config.aps.clientSecret
+    }
+  });
+});
+
+// All dashboard data, files, and Autodesk authentication routes require the
+// front-door website PIN. Administrative actions retain their separate PIN.
+app.use('/api', requireSiteAccess);
+
+// Private routes
 app.use('/api/auth', authRoutes);
 app.use('/api/sites', sitesRoutes);
 app.use('/api/static', staticRoutes);
@@ -41,19 +115,7 @@ app.use('/api/issues', issuesRoutes);
 app.use('/api/assets', assetsRoutes);
 app.use('/api/commissioning', commissioningRoutes);
 app.use('/api/schedules', schedulesRoutes);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    multiSite: true,
-    config: {
-      hasClientId: !!config.aps.clientId,
-      hasClientSecret: !!config.aps.clientSecret
-    }
-  });
-});
+app.use('/api/contacts', contactsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -73,5 +135,8 @@ app.listen(PORT, () => {
   console.log(`🌐 Multi-site support enabled`);
   console.log(`📍 Available sites: Check /api/sites`);
 });
+
+process.once('SIGINT', () => issueRefreshScheduler.close());
+process.once('SIGTERM', () => issueRefreshScheduler.close());
 
 export default app;

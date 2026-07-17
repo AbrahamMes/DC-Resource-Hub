@@ -37,8 +37,8 @@ Edit `.env` and fill in your credentials:
 
 ```env
 # Get these from https://aps.autodesk.com/myapps
-APS_CLIENT_ID=your_client_id_here
-APS_CLIENT_SECRET=your_client_secret_here
+APS_CLIENT_ID=<set-in-environment>
+APS_CLIENT_SECRET=<set-in-environment>
 APS_CALLBACK_URL=http://localhost:3001/api/auth/callback
 
 # Get these from your ACC project
@@ -47,7 +47,8 @@ ACC_ASSIGNED_TO_ID=your_assigned_to_id_here
 
 # Server config
 PORT=3001
-SESSION_SECRET=your_random_secret_here
+SESSION_SECRET=<set-in-environment>
+SYNC_PIN=<set-in-environment>
 FRONTEND_URL=http://localhost:5173
 ```
 

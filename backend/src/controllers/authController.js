@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../config/config.js';
+import { getValidAccessToken } from '../services/autodeskTokenService.js';
 
 // Initiate OAuth flow - redirect user to Autodesk login
 export const login = (req, res) => {
@@ -44,8 +45,13 @@ export const callback = async (req, res) => {
     req.session.refreshToken = refresh_token;
     req.session.expiresAt = new Date(Date.now() + expires_in * 1000);
 
-    // Redirect back to frontend
-    res.redirect(`${config.frontendUrl}/issues?auth=success`);
+    req.session.save((saveError) => {
+      if (saveError) {
+        console.error('Failed to persist OAuth session:', saveError);
+        return res.redirect(`${config.frontendUrl}/issues?error=session_save_failed`);
+      }
+      res.redirect(`${config.frontendUrl}/issues?auth=success`);
+    });
   } catch (error) {
     console.error('OAuth callback error:', error.response?.data || error.message);
     res.redirect(`${config.frontendUrl}/issues?error=auth_failed`);
@@ -53,17 +59,20 @@ export const callback = async (req, res) => {
 };
 
 // Check authentication status
-export const status = (req, res) => {
-  if (req.session.accessToken) {
-    const isExpired = req.session.expiresAt && new Date() > new Date(req.session.expiresAt);
-    res.json({
-      authenticated: !isExpired,
-      expiresAt: req.session.expiresAt
-    });
-  } else {
-    res.json({
-      authenticated: false
-    });
+export const status = async (req, res) => {
+  if (!req.session.accessToken && !req.session.refreshToken) {
+    return res.json({ authenticated: false });
+  }
+
+  try {
+    await getValidAccessToken(req.session);
+    await new Promise((resolve, reject) =>
+      req.session.save((error) => error ? reject(error) : resolve())
+    );
+    res.json({ authenticated: true, expiresAt: req.session.expiresAt });
+  } catch (error) {
+    console.error('Autodesk session renewal failed:', error.response?.data || error.message);
+    res.json({ authenticated: false, needsAuth: true });
   }
 };
 

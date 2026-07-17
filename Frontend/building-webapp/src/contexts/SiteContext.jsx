@@ -5,6 +5,7 @@
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import config from '../config';
 
 const SiteContext = createContext();
 
@@ -31,11 +32,14 @@ export function SiteProvider({ children }) {
   useEffect(() => {
     if (availableSites.length > 0 && !currentSite) {
       const savedSite = localStorage.getItem('selectedSite');
+
       if (savedSite && availableSites.find(s => s.id === savedSite)) {
         setCurrentSite(savedSite);
       } else {
-        // Default to first site
-        setCurrentSite(availableSites[0].id);
+        // Default to El Paso
+        const defaultSite = availableSites.find(s => s.id === 'TXE') || availableSites[0];
+        setCurrentSite(defaultSite.id);
+        localStorage.setItem('selectedSite', defaultSite.id);
       }
     }
   }, [availableSites, currentSite]);
@@ -45,7 +49,7 @@ export function SiteProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('http://localhost:3001/api/sites');
+      const response = await fetch(`${config.apiBaseUrl}/sites`, { credentials: 'include' });
       const data = await response.json();
 
       if (data.success && data.sites) {
@@ -56,9 +60,18 @@ export function SiteProvider({ children }) {
     } catch (err) {
       console.error('Error loading sites:', err);
       setError(err.message);
-      // Fallback to default site
-      setAvailableSites([{ id: 'TTX', name: 'Temple, TX', fullName: 'Temple Data Center' }]);
-      setCurrentSite('TTX');
+
+      // Fallback to El Paso site
+      setAvailableSites([
+        {
+          id: 'TXE',
+          name: 'El Paso, Texas',
+          fullName: 'El Paso Data Center'
+        }
+      ]);
+
+      setCurrentSite('TXE');
+      localStorage.setItem('selectedSite', 'TXE');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSite } from "../contexts/SiteContext";
+import config from "../config";
 
 export default function TopIssuesSlide() {
   const { currentSite } = useSite();
@@ -15,7 +16,7 @@ export default function TopIssuesSlide() {
 
   const fetchTopIssues = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/issues/top?site=${currentSite}&limit=3`);
+      const response = await fetch(`${config.apiBaseUrl}/issues/top?site=${currentSite}&limit=3`, { credentials: "include" });
       const data = await response.json();
 
       if (data.success) {

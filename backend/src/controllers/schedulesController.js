@@ -1,6 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import appConfig from '../config/config.js';
+import { randomUUID } from 'crypto';
+import { atomicWriteFileSync } from '../utils/atomicFile.js';
+import {
+  getSiteDefaultScheduleId,
+  hasValidScheduleSignature,
+  setSiteDefaultScheduleId
+} from '../utils/scheduleFiles.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,23 +18,27 @@ const SCHEDULES_CONFIG_FILE = path.join(SCHEDULES_DIR, 'schedules-config.json');
 
 // Ensure config file exists
 if (!fs.existsSync(SCHEDULES_CONFIG_FILE)) {
-  fs.writeFileSync(SCHEDULES_CONFIG_FILE, JSON.stringify({ schedules: [], defaultScheduleId: null }, null, 2));
+  atomicWriteFileSync(SCHEDULES_CONFIG_FILE, JSON.stringify({ schedules: [], defaultScheduleIds: {} }, null, 2));
 }
 
 // Helper to read schedules config
 const readConfig = () => {
-  try {
-    const data = fs.readFileSync(SCHEDULES_CONFIG_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return { schedules: [], defaultScheduleId: null };
+  const data = fs.readFileSync(SCHEDULES_CONFIG_FILE, 'utf8');
+  const parsed = JSON.parse(data);
+  if (!Array.isArray(parsed.schedules)) {
+    throw new Error('Schedule configuration is invalid: schedules must be an array');
   }
+  return parsed;
 };
 
 // Helper to write schedules config
 const writeConfig = (config) => {
-  fs.writeFileSync(SCHEDULES_CONFIG_FILE, JSON.stringify(config, null, 2));
+  atomicWriteFileSync(SCHEDULES_CONFIG_FILE, JSON.stringify(config, null, 2));
 };
+
+function removeUploadedFile(file) {
+  if (file?.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
+}
 
 // Get all schedules
 export const getSchedules = (req, res) => {
@@ -40,7 +52,7 @@ export const getSchedules = (req, res) => {
     res.json({
       success: true,
       schedules: siteSchedules,
-      defaultScheduleId: config.defaultScheduleId
+      defaultScheduleId: getSiteDefaultScheduleId(config, siteId)
     });
   } catch (error) {
     console.error('Error getting schedules:', error);
@@ -54,11 +66,12 @@ export const getSchedules = (req, res) => {
 // Upload a new schedule
 export const uploadSchedule = (req, res) => {
   try {
-    const { pin } = req.body;
+    const pin = String(req.get('x-admin-pin') || req.body.pin || '').trim();
     const siteId = req.siteId;
 
     // Verify PIN
-    if (pin !== '1725') {
+    if (!appConfig.syncPin || pin !== appConfig.syncPin) {
+      removeUploadedFile(req.file);
       return res.status(403).json({
         success: false,
         error: 'Invalid PIN'
@@ -73,15 +86,13 @@ export const uploadSchedule = (req, res) => {
     }
 
     const file = req.file;
-    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
     const fileExt = path.extname(file.originalname).toLowerCase();
 
-    if (!allowedExtensions.includes(fileExt)) {
-      // Delete the uploaded file
-      fs.unlinkSync(file.path);
+    if (!hasValidScheduleSignature(file.path, file.originalname)) {
+      removeUploadedFile(file);
       return res.status(400).json({
         success: false,
-        error: 'Invalid file type. Only PDF, JPG, and PNG files are allowed.'
+        error: 'The uploaded file content does not match its PDF, image, or Excel extension.'
       });
     }
 
@@ -89,7 +100,7 @@ export const uploadSchedule = (req, res) => {
     const config = readConfig();
 
     // Create schedule entry
-    const scheduleId = Date.now().toString();
+    const scheduleId = randomUUID();
     const relativePath = `/schedules/${file.filename}`;
 
     const newSchedule = {
@@ -98,7 +109,7 @@ export const uploadSchedule = (req, res) => {
       label: file.originalname,
       filename: file.filename,
       path: relativePath,
-      type: fileExt === '.pdf' ? 'pdf' : 'image',
+      type: fileExt === '.pdf' ? 'pdf' : ['.xlsx', '.xls'].includes(fileExt) ? 'excel' : 'image',
       uploadedAt: new Date().toISOString(),
       isStarred: false
     };
@@ -106,8 +117,9 @@ export const uploadSchedule = (req, res) => {
     config.schedules.push(newSchedule);
 
     // If this is the first schedule, make it default
-    if (config.schedules.length === 1) {
-      config.defaultScheduleId = scheduleId;
+    const siteSchedules = config.schedules.filter((schedule) => schedule.siteId === siteId);
+    if (siteSchedules.length === 1) {
+      setSiteDefaultScheduleId(config, siteId, scheduleId);
     }
 
     writeConfig(config);
@@ -117,6 +129,7 @@ export const uploadSchedule = (req, res) => {
       schedule: newSchedule
     });
   } catch (error) {
+    removeUploadedFile(req.file);
     console.error('Error uploading schedule:', error);
     res.status(500).json({
       success: false,
@@ -129,11 +142,11 @@ export const uploadSchedule = (req, res) => {
 export const deleteSchedule = (req, res) => {
   try {
     const { scheduleId } = req.params;
-    const { pin } = req.body;
+    const pin = String(req.get('x-admin-pin') || req.body.pin || '').trim();
     const siteId = req.siteId;
 
     // Verify PIN
-    if (pin !== '1725') {
+    if (!appConfig.syncPin || pin !== appConfig.syncPin) {
       return res.status(403).json({
         success: false,
         error: 'Invalid PIN'
@@ -153,18 +166,22 @@ export const deleteSchedule = (req, res) => {
     const schedule = config.schedules[scheduleIndex];
 
     // Delete the file
-    const filePath = path.join(SCHEDULES_DIR, schedule.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    const safeFilename = path.basename(schedule.filename || '');
+    const possiblePaths = [
+      path.join(SCHEDULES_DIR, siteId, 'schedules', safeFilename),
+      path.join(SCHEDULES_DIR, safeFilename),
+      path.join(SCHEDULES_DIR, 'schedules', safeFilename)
+    ];
+    const filePath = possiblePaths.find((candidate) => fs.existsSync(candidate));
+    if (filePath) fs.unlinkSync(filePath);
 
     // Remove from config
     config.schedules.splice(scheduleIndex, 1);
 
     // If this was the default, set a new default
-    if (config.defaultScheduleId === scheduleId) {
+    if (getSiteDefaultScheduleId(config, siteId) === scheduleId) {
       const siteSchedules = config.schedules.filter(s => s.siteId === siteId);
-      config.defaultScheduleId = siteSchedules.length > 0 ? siteSchedules[0].id : null;
+      setSiteDefaultScheduleId(config, siteId, siteSchedules.length > 0 ? siteSchedules[0].id : null);
     }
 
     writeConfig(config);
@@ -207,7 +224,7 @@ export const starSchedule = (req, res) => {
 
     // Star the selected schedule
     schedule.isStarred = true;
-    config.defaultScheduleId = scheduleId;
+    setSiteDefaultScheduleId(config, siteId, scheduleId);
 
     writeConfig(config);
 

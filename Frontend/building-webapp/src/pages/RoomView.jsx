@@ -31,7 +31,7 @@ export default function RoomView() {
       setError(null);
 
       // Fetch building first to get building name
-      const buildingResponse = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}`);
+      const buildingResponse = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}`, { credentials: "include" });
       const buildingData = await buildingResponse.json();
 
       if (!buildingData.success || !buildingData.building) {
@@ -42,7 +42,7 @@ export default function RoomView() {
       setBuilding(buildingData.building);
 
       // Fetch room details
-      const roomResponse = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}/rooms/${roomId}`);
+      const roomResponse = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}/rooms/${roomId}`, { credentials: "include" });
       const roomData = await roomResponse.json();
 
       if (roomData.success && roomData.room) {
@@ -60,7 +60,7 @@ export default function RoomView() {
 
   const fetchAssets = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}/rooms/${roomId}/assets`);
+      const response = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${buildingId}/rooms/${roomId}/assets`, { credentials: "include" });
       const data = await response.json();
 
       if (data.success) {
@@ -140,9 +140,9 @@ export default function RoomView() {
     : assets;
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 50px)" }}>
+    <div className="room-layout" style={{ display: "flex", height: "calc(100vh - 50px)" }}>
       {/* Main content area with floor plan */}
-      <div style={{ flex: 1, padding: 20, overflowY: "auto" }}>
+      <div className="room-main" style={{ flex: 1, padding: 20, overflowY: "auto" }}>
         {/* Breadcrumbs */}
         <div style={{ marginBottom: 20, fontSize: 14, color: '#888' }}>
           <Link to="/buildings" style={{ color: '#0696D7', textDecoration: 'none' }}>
@@ -201,7 +201,7 @@ export default function RoomView() {
       </div>
 
       {/* Right sidebar with asset list */}
-      <div style={{
+      <div className="room-sidebar" style={{
         width: 350,
         borderLeft: '1px solid #333',
         background: '#1a1a1a',

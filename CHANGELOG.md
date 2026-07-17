@@ -44,7 +44,7 @@ All notable changes to the ACC Issue Display project are documented here.
 - **Routing**: Updated App.jsx to use BuildingView component with `:id` parameter
 
 ### Security Improvements
-- Moved hardcoded PIN (`1725`) to environment variable in `.env` file
+- Moved the former hardcoded PIN to the `SYNC_PIN` environment variable
 - Added `SYNC_PIN` to backend configuration with fallback
 - Updated `assetsController.js` to use `config.syncPin` instead of hardcoded value
 

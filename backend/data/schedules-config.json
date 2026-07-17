@@ -1,4 +1,15 @@
 {
-  "schedules": [],
-  "defaultScheduleId": null
+  "schedules": [
+    {
+      "id": "1784056665819",
+      "siteId": "TXE",
+      "label": "07 - TXE Reg 1 - fGMP R4.1 Schedule - Full Bookmarked Schedule PD 2026.06.11.pdf",
+      "filename": "schedule-1784056665797-631550300.pdf",
+      "path": "/schedules/schedule-1784056665797-631550300.pdf",
+      "type": "pdf",
+      "uploadedAt": "2026-07-14T19:17:45.819Z",
+      "isStarred": false
+    }
+  ],
+  "defaultScheduleId": "1784056665819"
 }

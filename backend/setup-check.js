@@ -82,7 +82,15 @@ if (process.env.SESSION_SECRET && process.env.SESSION_SECRET !== 'your_random_se
 } else {
   console.log('   ⚠️  SESSION_SECRET is using default or placeholder');
   console.log('   → Use a strong random string in production');
-  hasWarnings = true;
+  hasErrors = true;
+}
+
+if (process.env.SYNC_PIN?.trim()) {
+  console.log('   âœ… SYNC_PIN is set');
+} else {
+  console.log('   âŒ SYNC_PIN is missing');
+  console.log('   â†’ Set it in the environment; never place it in frontend code');
+  hasErrors = true;
 }
 
 // Check 5: Data directory

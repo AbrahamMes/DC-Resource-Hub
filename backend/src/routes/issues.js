@@ -1,20 +1,30 @@
 import express from 'express';
-import { getLocalIssues, syncIssues, getSyncStatus, getTopIssues, deleteIssue } from '../controllers/issuesController.js';
+import {
+  getLocalIssues,
+  syncIssues,
+  getSyncStatus,
+  getTopIssues,
+  getIssueAssigneesDebug,
+  deleteIssue
+} from '../controllers/issuesController.js';
 import { requireAuth } from '../middleware/auth.js';
 import { siteContext } from '../middleware/siteContext.js';
 
 const router = express.Router();
 
-// Apply site context to all routes
+// Apply site context to all issue routes
 router.use(siteContext);
 
-// Get issues from local database (no auth required for reading)
+// Get issues from local database
 router.get('/', getLocalIssues);
 
 // Get top N issues by due date
 router.get('/top', getTopIssues);
 
-// Sync issues from ACC API (requires authentication)
+// Debug assignees from local database
+router.get('/debug-assignees', getIssueAssigneesDebug);
+
+// Sync all issues from ACC API
 router.post('/sync', requireAuth, syncIssues);
 
 // Get sync status/metadata

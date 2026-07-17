@@ -1,6 +1,8 @@
+import { getValidAccessToken, tokenErrorMessage } from '../services/autodeskTokenService.js';
+
 // Middleware to check if user is authenticated
-export const requireAuth = (req, res, next) => {
-  if (!req.session.accessToken) {
+export const requireAuth = async (req, res, next) => {
+  if (!req.session.accessToken && !req.session.refreshToken) {
     return res.status(401).json({
       error: 'Not authenticated',
       message: 'Please login first',
@@ -8,16 +10,19 @@ export const requireAuth = (req, res, next) => {
     });
   }
 
-  // Check if token is expired
-  if (req.session.expiresAt && new Date() > new Date(req.session.expiresAt)) {
+  try {
+    await getValidAccessToken(req.session);
+    await new Promise((resolve, reject) =>
+      req.session.save((error) => error ? reject(error) : resolve())
+    );
+    next();
+  } catch (error) {
     return res.status(401).json({
-      error: 'Token expired',
-      message: 'Your session has expired. Please login again.',
+      error: tokenErrorMessage(error),
+      message: 'Your Autodesk authorization could not be renewed. Please login again.',
       needsAuth: true
     });
   }
-
-  next();
 };
 
 // Middleware to attach access token to request if available

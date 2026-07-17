@@ -10,6 +10,7 @@ package-lock.json
 # Database files
 *.db
 *.db-journal
+backend/backups/
 
 # Logs
 logs/

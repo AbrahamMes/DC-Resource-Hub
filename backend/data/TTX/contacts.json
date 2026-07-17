@@ -1,0 +1,13 @@
+{
+  "contacts": [
+    {
+      "name": "Example Contact",
+      "title": "Project Manager",
+      "email": "example@example.com",
+      "phone": "555-0100",
+      "area": "All",
+      "equipment": "General"
+    }
+  ],
+  "lastUpdated": "2026-01-09T15:10:22.668Z"
+}

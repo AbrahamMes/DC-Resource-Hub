@@ -134,8 +134,8 @@ ACCIssueDisplay/
 ### Backend (.env)
 ```bash
 # Autodesk API Credentials
-APS_CLIENT_ID=your_client_id_here
-APS_CLIENT_SECRET=your_client_secret_here
+APS_CLIENT_ID=<set-in-environment>
+APS_CLIENT_SECRET=<set-in-environment>
 APS_CALLBACK_URL=http://localhost:3001/api/auth/callback
 
 # ACC Project Configuration
@@ -144,11 +144,11 @@ ACC_ASSIGNED_TO_ID=your_assigned_to_id_here
 
 # Server Configuration
 PORT=3001
-SESSION_SECRET=your_random_session_secret_here
+SESSION_SECRET=<set-in-environment>
 FRONTEND_URL=http://localhost:5173
 
 # Security
-SYNC_PIN=1725
+SYNC_PIN=<set-in-environment>
 ```
 
 ### Frontend (.env)

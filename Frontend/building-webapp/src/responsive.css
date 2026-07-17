@@ -1,0 +1,372 @@
+:root {
+  --page-padding: clamp(12px, 2vw, 24px);
+  --content-max: 1800px;
+  --touch-target: 44px;
+}
+
+.page-shell {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  padding: var(--page-padding) !important;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.dashboard-page {
+  height: calc(100vh - 66px) !important;
+  min-height: calc(100vh - 66px);
+  overflow: hidden !important;
+}
+
+.dashboard-grid {
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.dashboard-card {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.dashboard-card__content {
+  min-height: 0 !important;
+  justify-content: flex-start !important;
+  overflow: hidden !important;
+}
+
+/* Issues has more information rows than the other dashboard cards. The whole
+   card is clickable, so its repeated footer can yield that space to the data. */
+.dashboard-card--issues > div:last-child {
+  display: none !important;
+}
+
+.dashboard-card--issues .dashboard-card__content {
+  justify-content: space-between !important;
+  padding-bottom: 2px;
+}
+
+.dashboard-card--issues .issue-metric-grid {
+  gap: 5px !important;
+}
+
+.page-shell h1 {
+  overflow-wrap: anywhere;
+}
+
+.page-action-bar,
+.page-filters {
+  gap: 10px !important;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll table {
+  min-width: 760px;
+}
+
+.tab-strip {
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.tab-strip > button {
+  min-height: var(--touch-target);
+  white-space: nowrap;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+  :root {
+    --page-padding: 16px;
+  }
+
+  .hotbar__link {
+    font-size: 14px;
+    padding-inline: 10px;
+  }
+
+  .dashboard-page {
+    height: auto !important;
+    min-height: calc(100vh - 66px);
+    overflow: visible !important;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+  }
+
+  .dashboard-card {
+    min-height: 300px !important;
+    overflow: hidden !important;
+  }
+
+  .building-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: none !important;
+  }
+
+  .building-grid > a {
+    min-height: 210px !important;
+  }
+
+  .buildings-page {
+    height: auto !important;
+    min-height: calc(100vh - 66px) !important;
+    overflow: visible !important;
+  }
+
+  .room-sidebar {
+    width: 300px !important;
+  }
+
+  .data-page .table-scroll table {
+    font-size: 13px;
+  }
+
+  .commissioning-page form {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --page-padding: 12px;
+  }
+
+  .page-shell h1 {
+    font-size: 22px !important;
+    line-height: 1.2;
+  }
+
+  .page-shell > div:first-child {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .page-shell > div:first-child > button {
+    min-height: var(--touch-target);
+  }
+
+  .page-shell > div:first-child > div {
+    min-width: 0;
+  }
+
+  .data-page > div:first-child {
+    align-items: flex-start !important;
+  }
+
+  .data-page > div:first-child > button {
+    flex: 0 0 auto;
+  }
+
+  .page-action-bar {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .page-action-bar > * {
+    margin-left: 0 !important;
+  }
+
+  .page-action-bar > button,
+  .page-filters button {
+    min-height: var(--touch-target);
+  }
+
+  .page-filters {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .page-filters > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .page-filters input,
+  .page-filters select,
+  .page-filters button {
+    width: 100% !important;
+  }
+
+  .dashboard-page {
+    padding: 10px !important;
+  }
+
+  .dashboard-card {
+    min-height: 280px !important;
+    padding: 14px !important;
+  }
+
+  .dashboard-secondary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-status {
+    grid-template-columns: 1fr 1fr !important;
+    padding: 10px !important;
+  }
+
+  .dashboard-status button {
+    min-height: 40px;
+  }
+
+  .building-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .building-grid > a {
+    min-height: 190px !important;
+    padding: 14px !important;
+  }
+
+  .room-layout {
+    height: auto !important;
+    min-height: calc(100vh - 58px);
+    flex-direction: column;
+  }
+
+  .room-main {
+    width: 100%;
+    padding: 14px !important;
+    box-sizing: border-box;
+    overflow: visible !important;
+  }
+
+  .room-sidebar {
+    width: 100% !important;
+    min-height: 420px;
+    height: auto !important;
+    border-left: 0 !important;
+    border-top: 1px solid #333;
+  }
+
+  .commissioning-page textarea {
+    min-height: 110px;
+  }
+
+  .commissioning-page input,
+  .commissioning-page select,
+  .commissioning-page textarea {
+    width: 100%;
+    font-size: 16px !important;
+  }
+
+  .commissioning-page form > div {
+    margin-bottom: 14px !important;
+  }
+
+  .commissioning-page .tab-strip {
+    gap: 6px !important;
+    margin-inline: -2px;
+  }
+
+  .commissioning-page .tab-strip > button {
+    flex: 1 0 auto;
+    padding-inline: 12px !important;
+    font-size: 13px !important;
+  }
+
+  .table-scroll {
+    border: 1px solid #333;
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    padding: 10px 12px !important;
+    white-space: nowrap;
+  }
+
+  canvas {
+    height: auto !important;
+  }
+}
+
+@media (max-width: 440px) {
+  :root {
+    --page-padding: 10px;
+  }
+
+  .hotbar {
+    gap: 5px;
+    padding-inline: 7px;
+  }
+
+  .hotbar__links {
+    gap: 2px;
+  }
+
+  .hotbar__link {
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+
+  .hotbar__admin {
+    padding: 8px 9px;
+    font-size: 12px;
+  }
+
+  .issue-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .dashboard-status {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-status > span {
+    padding-block: 2px;
+  }
+
+  .data-page .table-scroll {
+    margin-inline: -2px;
+    width: calc(100% + 4px);
+  }
+
+  .page-shell > div:first-child {
+    margin-bottom: 8px !important;
+  }
+
+  .page-shell > div:first-child p {
+    line-height: 1.35;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input,
+  select {
+    min-height: var(--touch-target);
+  }
+
+  .hotbar__link {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

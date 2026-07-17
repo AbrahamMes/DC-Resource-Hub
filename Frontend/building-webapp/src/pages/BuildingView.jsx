@@ -22,7 +22,7 @@ export default function BuildingView() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${id}`);
+      const response = await fetch(`${API_BASE_URL}/sites/${currentSite}/buildings/${id}`, { credentials: "include" });
       const data = await response.json();
 
       if (data.success && data.building) {
@@ -47,7 +47,7 @@ export default function BuildingView() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="page-shell" style={{ padding: 20 }}>
       <div style={{ marginBottom: 20 }}>
         <Link to="/buildings" style={{ color: '#0696D7', textDecoration: 'none' }}>
           ← Back to Buildings

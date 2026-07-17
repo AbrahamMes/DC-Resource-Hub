@@ -2,22 +2,14 @@ import React, { useState } from "react";
 
 export default function PinDialog({ isOpen, onClose, onSubmit, title = "Enter PIN" }) {
   const [pin, setPin] = useState("");
-  const [error, setError] = useState("");
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (pin === "1725") {
-      onSubmit(pin);
-      setPin("");
-      setError("");
-    } else {
-      setError("Invalid PIN");
-    }
+    onSubmit(pin);
+    setPin("");
   };
 
   const handleCancel = () => {
     setPin("");
-    setError("");
     onClose();
   };
 
@@ -55,7 +47,6 @@ export default function PinDialog({ isOpen, onClose, onSubmit, title = "Enter PI
             value={pin}
             onChange={(e) => {
               setPin(e.target.value);
-              setError("");
             }}
             placeholder="Enter PIN"
             autoFocus
@@ -73,16 +64,6 @@ export default function PinDialog({ isOpen, onClose, onSubmit, title = "Enter PI
             onFocus={(e) => e.target.style.borderColor = '#0696D7'}
             onBlur={(e) => e.target.style.borderColor = '#444'}
           />
-
-          {error && (
-            <p style={{
-              color: '#ff4444',
-              fontSize: '14px',
-              marginBottom: '16px'
-            }}>
-              {error}
-            </p>
-          )}
 
           <div style={{
             display: 'flex',

@@ -2,6 +2,10 @@
 
 Web-based tool for viewing Autodesk Construction Cloud (ACC) Issues. Syncs issues from ACC API to a local SQLite database and displays them in a filterable table.
 
+The backend automatically refreshes ACC issues hourly using securely persisted Autodesk refresh tokens. See [Automatic ACC issue refresh](docs/HOURLY_ISSUE_REFRESH.md) for configuration and failure visibility.
+
+The dashboard is protected by a server-verified website access PIN that is separate from the administrative PIN. See [Website access PIN](docs/WEBSITE_ACCESS_PIN.md) for setup.
+
 ## Features
 
 - **3-Legged OAuth Authentication** with Autodesk
@@ -22,13 +26,16 @@ Web-based tool for viewing Autodesk Construction Cloud (ACC) Issues. Syncs issue
 
 ```bash
 # Backend
-cd backend
-npm install
+cd "C:\ACC issue display\ACCIssueDisplay\backend"
+npm.cmd run dev
 
 # Frontend
-cd ../Frontend/building-webapp
-npm install
+cd "C:\ACC issue display\ACCIssueDisplay\Frontend\building-webapp"
+npm.cmd run dev
 ```
+
+# Website
+http://localhost:5173
 
 ### 2. Configure Backend
 
@@ -36,8 +43,8 @@ Create `backend/.env` from `backend/.env.example`:
 
 ```env
 # APS Credentials (from https://aps.autodesk.com/myapps)
-APS_CLIENT_ID=your_client_id_here
-APS_CLIENT_SECRET=your_client_secret_here
+APS_CLIENT_ID=<set-in-environment>
+APS_CLIENT_SECRET=<set-in-environment>
 APS_CALLBACK_URL=http://localhost:3001/api/auth/callback
 
 ********************************************************************************
@@ -50,7 +57,8 @@ ACC_ASSIGNED_TO_ID=your_assigned_to_user_id_here
 
 # Server Config
 PORT=3001
-SESSION_SECRET=random_secret_key_here
+SESSION_SECRET=<set-in-environment>
+SYNC_PIN=<set-in-environment>
 FRONTEND_URL=http://localhost:5173
 ```
 

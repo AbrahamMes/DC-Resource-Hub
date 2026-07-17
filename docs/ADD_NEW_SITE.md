@@ -254,7 +254,7 @@ If you have ACC credentials configured, you can sync data for the new site:
 ### Assets Sync
 1. Go to Assets page
 2. Click "Login with Autodesk" (if not already logged in)
-3. Enter PIN: `1725`
+3. Enter the sync PIN configured in the backend environment.
 4. Click "Re-query ACC API"
 5. Assets will be synced with progress display
 

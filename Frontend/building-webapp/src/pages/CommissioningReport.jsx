@@ -51,7 +51,7 @@ export default function CommissioningReport() {
 
   const fetchLocations = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/commissioning/locations?site=${currentSite}`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/locations?site=${currentSite}`, { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setLocations(data.locations || []);
@@ -64,7 +64,7 @@ export default function CommissioningReport() {
   const fetchAssetsByLocation = async (location) => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/commissioning/assets-by-location?site=${currentSite}&location=${encodeURIComponent(location)}`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/assets-by-location?site=${currentSite}&location=${encodeURIComponent(location)}`, { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setAvailableAssets(data.assets || []);
@@ -79,7 +79,7 @@ export default function CommissioningReport() {
   const fetchEntriesByDate = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/commissioning/entries-by-date?site=${currentSite}`);
+      const response = await fetch(`${API_BASE_URL}/commissioning/entries-by-date?site=${currentSite}`, { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setEntriesByDate(data.entriesByDate || {});
@@ -129,6 +129,7 @@ export default function CommissioningReport() {
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/commissioning/submit?site=${currentSite}`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry)
       });
@@ -236,26 +237,26 @@ export default function CommissioningReport() {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1 style={{ margin: '0 0 10px 0' }}>Commissioning Report</h1>
+    <div className="page-shell commissioning-page" style={{ padding: '10px 16px 16px' }}>
+      <h1 style={{ margin: '0 0 6px', fontSize: '22px' }}>Commissioning Report</h1>
 
       {/* Tab Navigation */}
-      <div style={{
+      <div className="tab-strip" style={{
         display: 'flex',
-        gap: '10px',
-        marginBottom: '20px',
-        borderBottom: '2px solid #dee2e6'
+        gap: '8px',
+        marginBottom: '10px',
+        borderBottom: '1px solid #dee2e6'
       }}>
         <button
           onClick={() => setActiveTab('form')}
           style={{
-            padding: '10px 20px',
+            padding: '6px 12px',
             backgroundColor: activeTab === 'form' ? '#0696D7' : 'transparent',
             color: activeTab === 'form' ? 'white' : '#495057',
             border: 'none',
             borderBottom: activeTab === 'form' ? '3px solid #0696D7' : '3px solid transparent',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: '12px',
             fontWeight: 'bold',
             transition: 'all 0.2s'
           }}
@@ -265,13 +266,13 @@ export default function CommissioningReport() {
         <button
           onClick={() => setActiveTab('log')}
           style={{
-            padding: '10px 20px',
+            padding: '6px 12px',
             backgroundColor: activeTab === 'log' ? '#0696D7' : 'transparent',
             color: activeTab === 'log' ? 'white' : '#495057',
             border: 'none',
             borderBottom: activeTab === 'log' ? '3px solid #0696D7' : '3px solid transparent',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: '12px',
             fontWeight: 'bold',
             transition: 'all 0.2s'
           }}
@@ -283,8 +284,8 @@ export default function CommissioningReport() {
       {/* Form Tab */}
       {activeTab === 'form' && (
         <div style={{ maxWidth: '800px' }}>
-          <h2>Daily Work Entry</h2>
-          <p style={{ color: '#666', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '18px', margin: '0 0 3px' }}>Daily Work Entry</h2>
+          <p style={{ color: '#888', fontSize: '12px', margin: '0 0 10px' }}>
             Record daily commissioning work completed in a specific location
           </p>
 

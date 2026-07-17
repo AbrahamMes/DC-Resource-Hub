@@ -13,7 +13,14 @@ const sites = {
 
     // ACC Project Configuration
     accProjectId: 'b38e25ea-eca5-4a70-9f0b-85eeb399056f',
-    accAssignedToId: '277458593',
+
+    // No issue filtering for TTX
+    accAssignedToId: null,
+    accAssignedToType: null,
+    accIncludeAssignedToMembers: false,
+    clearIssuesBeforeSync: true,
+
+    primeControlsAssignedToIds: [],
 
     // Database Paths (relative to backend/data/)
     databases: {
@@ -22,7 +29,7 @@ const sites = {
       commissioning: 'TTX/commissioning.db'
     },
 
-    // Static Asset Paths (relative to backend/data/)
+    // Static Asset Paths
     staticAssets: {
       excelFile: 'TTX/Asset List_Rev10.xlsx',
       contacts: 'TTX/contacts.json',
@@ -165,19 +172,52 @@ const sites = {
         id: 'ttx3',
         name: 'TTX3',
         description: 'Tertiary Data Hall',
-        rooms: [] // TODO: Add rooms when available
+        rooms: []
       }
     ]
   },
 
   TXE: {
     id: 'TXE',
-    name: 'El Paso, TX',
+    name: 'El Paso, Texas',
     fullName: 'El Paso Data Center',
 
     // ACC Project Configuration
     accProjectId: 'fe0c7a6d-1115-42d7-897e-206f80b63edb',
-    accAssignedToId: null, // TODO: Add when issues are assigned to Prime Controls
+    accProjects: [
+      {
+        id: 'fe0c7a6d-1115-42d7-897e-206f80b63edb',
+        key: 'hensel-phelps',
+        name: 'TXE - Hensel Phelps (NB.TypeF2.0)'
+      },
+      {
+        id: 'a0482399-f629-4aeb-9245-4da64cc2ac1c',
+        key: 'je-dunn',
+        name: 'TXE - JE Dunn (NB.TypeF2.0)'
+      }
+    ],
+
+    // ACC Assets category from this ACC URL:
+    // https://acc.autodesk.com/build/assets/projects/fe0c7a6d-1115-42d7-897e-206f80b63edb/assets?categoryId=10
+    accAssetCategoryId: '10',
+    accAssetCategoryName: 'Controls',
+
+    // Do not use ACC company filter. It returned 0 from the public Issues API.
+    accAssignedToId: null,
+    accAssignedToType: null,
+    accIncludeAssignedToMembers: false,
+
+    // Clear old local issues before saving the latest Prime Controls filtered issue list.
+    clearIssuesBeforeSync: true,
+
+    // Prime Controls assigned-to IDs discovered from ACC Prime Controls filtered issues.
+    primeControlsAssignedToIds: [
+      // TXE Prime Controls company ID (for issues assigned directly to the company).
+      '595923917',
+      // Current TXE Prime Controls member IDs.
+      '35C2BJAJKUECSQGN',
+      'DJ52TVFQRUYFNK43'
+    ],
 
     // Database Paths (relative to backend/data/)
     databases: {
@@ -186,34 +226,79 @@ const sites = {
       commissioning: 'TXE/commissioning.db'
     },
 
-    // Static Asset Paths (relative to backend/data/)
+    // Static Asset Paths
     staticAssets: {
-      excelFile: 'TXE/Asset_List_Placeholder.xlsx', // TODO: Upload real Excel file
+      excelFile: 'C:\\Users\\Prime\\OneDrive - Prime Controls\\Meta TXE - 2566006 - Meta TXE Phase 1 HP\\Documentation\\Asset List\\TXE_Asset List_Rev10_TXE.xlsx',
       contacts: 'TXE/contacts.json',
       scheduleImage: 'TXE/schedules/schedule.jpg',
       schedulePdf: 'TXE/schedules/6-week.pdf',
       buildingsDir: 'TXE/buildings/'
     },
 
-    // Buildings Hierarchy
+    // Buildings / Bluebeam / Drawings Areas
     buildings: [
       {
         id: 'txe1',
         name: 'TXE1',
         description: 'Primary Data Hall',
-        rooms: [] // TODO: Define room structure and upload images
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/200-116-966/editor',
+        rooms: []
       },
       {
         id: 'txe2',
         name: 'TXE2',
         description: 'Secondary Data Hall',
-        rooms: [] // TODO: Define room structure and upload images
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/647-792-551/editor',
+        rooms: []
+      },
+      {
+        id: 'txe3',
+        name: 'TXE3',
+        description: 'Data Hall',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/767-176-208/editor',
+        rooms: []
+      },
+      {
+        id: 'txe5',
+        name: 'TXE5',
+        description: 'Data Hall',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/190-437-699/editor',
+        rooms: []
+      },
+      {
+        id: 'txe6',
+        name: 'TXE6',
+        description: 'Data Hall',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/319-599-320/editor',
+        rooms: []
+      },
+      {
+        id: 'txe7',
+        name: 'TXE7',
+        description: 'Data Hall',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/300-225-768/editor',
+        rooms: []
       },
       {
         id: 'txe10',
         name: 'TXE10',
-        description: 'Support Building',
-        rooms: [] // TODO: Define room structure and upload images
+        description: 'Network Building',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/492-134-271/editor',
+        rooms: []
+      },
+      {
+        id: 'ibos',
+        name: 'TXE-IBOS',
+        description: 'Warehouse',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/711-043-879/editor',
+        rooms: []
+      },
+      {
+        id: 'admin',
+        name: 'TXE-ADMIN',
+        description: 'ADMIN Building',
+        bluebeamUrl: 'https://app.bluebeam.com/sessions/555-957-540/editor',
+        rooms: []
       }
     ]
   }

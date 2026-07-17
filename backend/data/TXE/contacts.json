@@ -1,0 +1,434 @@
+[
+  {
+    "id": "contact-1778527784602-k84cnj",
+    "name": "Brennan Charley",
+    "company": "Prime Controls",
+    "email": "b.charley@prime-controls.com",
+    "phone": "(505) 205-4252",
+    "position": "Project Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528007833-81z6fy",
+    "name": "Joseph D. Spalding",
+    "company": "Prime Controls",
+    "email": "j.spalding@prime-controls.com",
+    "phone": "(512) 988-2234",
+    "position": "Assistant Project Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528047219-3mna3u",
+    "name": "Christopher Vigil",
+    "company": "Prime Controls",
+    "email": "c.vigil@prime-controls.com",
+    "phone": "(512) 975-9084",
+    "position": "Construction Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528125822-q60r3k",
+    "name": "Abraham Mes",
+    "company": "Prime Controls",
+    "email": "a.mes@prime-controls.com",
+    "phone": "(972) 221-4849",
+    "position": "Lead Engineer",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528222163-i2x6aq",
+    "name": "Javier Pena",
+    "company": "Prime Controls",
+    "email": "j.pena@prime-controls.com",
+    "phone": "(956) 777-0158",
+    "position": "Project Superintendent",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528278338-zu44jt",
+    "name": "Juan C. Tapuro",
+    "company": "Prime Controls",
+    "email": "j.tapuro@prime-controls.com",
+    "phone": "(956) 869-8204",
+    "position": "Quality Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528404302-2x7fhv",
+    "name": "Karra Pate",
+    "company": "Prime Controls",
+    "email": "k.pate@prime-controls.com",
+    "phone": "(919) 309-5067",
+    "position": "Project Coordinator",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778528484345-380ao0",
+    "name": "Nalaney Paul",
+    "company": "Prime Controls",
+    "email": "n.paul@prime-controls.com",
+    "phone": "(432) 901-8533",
+    "position": "Administrative Assistant",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778609320546-ftx5pc",
+    "name": "Ricardo Garcia",
+    "company": "Prime Controls",
+    "email": "ri.garcia@prime-controls.com",
+    "phone": "(956) 321-5183",
+    "position": "Lead Field QAQC",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609368910-djtzsj",
+    "name": "Eric Sandoval",
+    "company": "Prime Controls",
+    "email": "e.sandoval@prime-controls.com",
+    "phone": "(956) 222-0134",
+    "position": "Field QAQC",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609437220-fw7ypi",
+    "name": "Arturo Moncayo",
+    "company": "Prime Controls",
+    "email": "a.moncayoo@prime-controls.com",
+    "phone": "(956) 821-9404",
+    "position": "Field Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609572343-0388a5",
+    "name": "Alan Anaya",
+    "company": "Prime Controls",
+    "email": "a.guillermo@prime-controls.com",
+    "phone": "(956) 522-1221",
+    "position": "Foreman ADMIN/IBOS (JED)",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609633554-rwuboq",
+    "name": "J Angel Herrera",
+    "company": "Prime Controls",
+    "email": "ja.herrera@prime-controls.com",
+    "phone": "(956) 422-1541",
+    "position": "Foreman TXE10",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609689785-zal7wj",
+    "name": "Mario Villegas",
+    "company": "Prime Controls",
+    "email": "m.villegas@prime-controls.com",
+    "phone": "(575) 556-4333",
+    "position": "Foreman TXE02",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778609956275-vrhl1j",
+    "name": "Ruben Carrilo",
+    "company": "Prime Controls",
+    "email": "r.carrillo@prime-controls.com",
+    "phone": "(956) 432-2729",
+    "position": "Foreman TXE01",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778610242673-bz20qx",
+    "name": "Dan Laub",
+    "company": "Hensel Phelps",
+    "email": "dlaub@henselphelps.com",
+    "phone": "(703) 909-4250",
+    "position": "Project Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778610369360-nituul",
+    "name": "Shay Evans",
+    "company": "Hensel Phelps",
+    "email": "sevans2@henselphelps.com",
+    "phone": "(406) 499-2703",
+    "position": "Project Engineer",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778610731810-mud750",
+    "name": "Samuel Zambrano",
+    "company": "Hensel Phelps",
+    "email": "SZambrano@henselphelps.com",
+    "phone": "(619) 808-8900",
+    "position": "Office Engineer",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778610798348-1on0ul",
+    "name": "Lucien Sahali",
+    "company": "Hensel Phelps",
+    "email": "LSahali@henselphelps.com",
+    "phone": "(831) 521-8353",
+    "position": "Senior Safety Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778610862467-zqdgsq",
+    "name": "Bill Scott",
+    "company": "Hensel Phelps",
+    "email": "wscott@henselphelps.com",
+    "phone": "(408) 461-0003",
+    "position": "Senior QC",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778610967270-wz7hee",
+    "name": "Omar Paiz",
+    "company": "Hensel Phelps",
+    "email": "opaiz@henselphelps.com",
+    "phone": "(970) 396-8144",
+    "position": "QC Manager",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778611065452-8o1ejq",
+    "name": "Justin Kreft",
+    "company": "Hensel Phelps",
+    "email": "jkreft@henselphelps.com",
+    "phone": "(281) 898-5137",
+    "position": "Project Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611180357-pnmg5v",
+    "name": "Eric Schildgen",
+    "company": "Hensel Phelps",
+    "email": "eschildgen@henselphelps.com",
+    "phone": "(608) 732-6142",
+    "position": "Project Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611247142-63xlt3",
+    "name": "Matt McDonald",
+    "company": "Hensel Phelps",
+    "email": "mmcdonald@henselphelps.com",
+    "phone": "(425) 559-8262",
+    "position": "Area Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611364295-m93slm",
+    "name": "Luis Flores",
+    "company": "Hensel Phelps",
+    "email": "lforesdenogean@henselphelps.com",
+    "phone": "(520) 878-6664",
+    "position": "Area Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611430868-p221d8",
+    "name": "Efrain Portillo",
+    "company": "Prime Controls",
+    "email": "eportillo@henselphelps.com",
+    "phone": "(847) 620-9236",
+    "position": "Area Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611493074-1pe8ro",
+    "name": "Lance Cain",
+    "company": "Hensel Phelps",
+    "email": "LCain@henselphelps.com",
+    "phone": "(214) 500-4394",
+    "position": "Area Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778611952363-wf3tgl",
+    "name": "Austin Champion",
+    "company": "Prime Controls",
+    "email": "a.champion@prime-controls.com",
+    "phone": "(361) 537-8805",
+    "position": "Technician I",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778612060170-xyaw3g",
+    "name": "Cooper Williams",
+    "company": "Prime Controls",
+    "email": "c.williams@prime-controls.com",
+    "phone": "(443) 823-8283",
+    "position": "Automation Specialist I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778612190472-37v0cw",
+    "name": "Jaime Estrada",
+    "company": "Prime Controls",
+    "email": "j.estrada@prime-controls.com",
+    "phone": "(361) 877-0987",
+    "position": "Technician II",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1778612361119-pkcokh",
+    "name": "Justin Delmont",
+    "company": "Prime Controls",
+    "email": "j.delmont@prime-controls.com",
+    "phone": "(903) 327-3695",
+    "position": "BIM-VDC Supervisor",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1778612536157-7z34rj",
+    "name": "Zydanne Duong",
+    "company": "Prime Controls",
+    "email": "z.duong@prime-controls.com",
+    "phone": "(409) 300-0626",
+    "position": "Instrumentation Technician I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1779309731419-y7rdgr",
+    "name": "Blake Lambert",
+    "company": "Prime Controls",
+    "email": "b.lambert@prime-controls.com",
+    "phone": "(512) 589-3028",
+    "position": "Technician I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1779997519951-97cx80",
+    "name": "Michael Conklin",
+    "company": "Prime Controls",
+    "email": "m.conklin@prime-controls.com",
+    "phone": "(972) 839-2272",
+    "position": "Automation Specialist I",
+    "area": "Remote"
+  },
+  {
+    "id": "contact-1779997640600-0vzbbh",
+    "name": "Slade Sittig",
+    "company": "Prime Controls",
+    "email": "ca.sittig@prime-controls.com",
+    "phone": "(337) 438-2070",
+    "position": "Instrumentation Technician I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1779997721043-37ytkr",
+    "name": "Troy Huggins",
+    "company": "Prime Controls",
+    "email": "t.huggins@prime-controls.com",
+    "phone": "(719) 229-9133",
+    "position": "Electrical Helper",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1779997847645-kd48bh",
+    "name": "Perry Sundstrom",
+    "company": "Prime Controls",
+    "email": "p.sundstrom@prime-controls.com",
+    "phone": "(801) 707-7231",
+    "position": "Automation Specialist I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1783978728337-qyl4zp",
+    "name": "Derek Thurman",
+    "company": "Prime Controls",
+    "email": "d.thurman@prime-controls.com",
+    "phone": "(360) 270-9338",
+    "position": "Instrumentation Technician I",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1783978818094-nshnov",
+    "name": "Easton Christensen",
+    "company": "Prime Controls",
+    "email": "e.christensen@prime-controls.com",
+    "phone": "(208) 244-2297",
+    "position": "Automation Specialist I",
+    "area": "Remote"
+  },
+  {
+    "id": "contact-1783978954441-i0g2jr",
+    "name": "Kirkland Jeane",
+    "company": "Prime Controls",
+    "email": "k.jeane@prime-controls.com",
+    "phone": "(225) 678-4756",
+    "position": "Safety Specialist",
+    "area": "Office/Field"
+  },
+  {
+    "id": "contact-1783981726322-bra6tj",
+    "name": "Raymond Arroyo",
+    "company": "Prime Controls",
+    "email": "r.arroyo@prime-controls.com",
+    "phone": "(575) 639-3015",
+    "position": "Electrical Foreman",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1783981857775-yodufe",
+    "name": "Sergio Valenzuela-Chavez",
+    "company": "Prime Controls",
+    "email": "s.valenzuela-chavez@prime-controls.com",
+    "phone": "(248) 759-1381",
+    "position": "Automation Specialist I",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1784045358741-4dvt7g",
+    "name": "Derrick Black",
+    "company": "Hensel Phelps",
+    "email": "dblack@henselphelps.com",
+    "phone": "(505) 377-4800",
+    "position": "CX Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1784120381466-8zvkxf",
+    "name": "Erik Van Steinburg",
+    "company": "Hensel Phelps",
+    "email": "",
+    "phone": "(916) 813-2198",
+    "position": "Office Engineer",
+    "area": "Office"
+  },
+  {
+    "id": "contact-1784139280334-ocnjir",
+    "name": "Mark Davis",
+    "company": "REI",
+    "email": "",
+    "phone": "(938) 259-9209",
+    "position": "MCUP Energization",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1784139389616-iuckcl",
+    "name": "Brian Mcnichols",
+    "company": "Hensel Phelps",
+    "email": "",
+    "phone": "(920) 450-9811",
+    "position": "Energy Officer",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1784139478358-6o52ph",
+    "name": "Cody Logan",
+    "company": "REI",
+    "email": "",
+    "phone": "(256) 932-6126",
+    "position": "MCUP Superintendent",
+    "area": "Field"
+  },
+  {
+    "id": "contact-1784141525128-6ufzr6",
+    "name": "Christian Saenz",
+    "company": "Prime Controls",
+    "email": "c.saenz@prime-controls.com",
+    "phone": "(702) 758-9255",
+    "position": "QC Technician",
+    "area": "Office/Field"
+  }
+]
