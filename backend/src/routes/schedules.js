@@ -2,21 +2,18 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { getSchedules, uploadSchedule, deleteSchedule, starSchedule } from '../controllers/schedulesController.js';
 import { siteContext } from '../middleware/siteContext.js';
 import { isAllowedScheduleExtension } from '../utils/scheduleFiles.js';
 import appConfig from '../config/config.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { getDataDir, resolveDataPath } from '../utils/storagePaths.js';
 
 const router = express.Router();
 
 // Apply site context to all routes
 router.use(siteContext);
 
-const dataRoot = path.join(__dirname, '../../data');
+const dataRoot = getDataDir();
 
 function requireScheduleAdminPin(req, res, next) {
   const pin = String(req.get('x-admin-pin') || '').trim();
@@ -27,7 +24,7 @@ function requireScheduleAdminPin(req, res, next) {
 }
 
 function getSiteSchedulesDir(siteId) {
-  return path.join(dataRoot, siteId, 'schedules');
+  return resolveDataPath(`${siteId}/schedules`, `${siteId} schedules directory`);
 }
 
 function getSafeFilename(filename) {

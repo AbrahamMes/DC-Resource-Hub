@@ -1,16 +1,12 @@
 import { getCommissioningDb, getAssetsDb } from '../models/databaseManager.js';
+import { resolveDataPath } from '../utils/storagePaths.js';
 import XLSX from 'xlsx';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Get unique locations from both assets database and Excel file
 export const getLocations = (req, res) => {
   try {
     const assetsDb = getAssetsDb(req.siteId);
-    const excelPath = path.join(__dirname, '../../data', req.siteConfig.staticAssets.excelFile);
+    const excelPath = resolveDataPath(req.siteConfig.staticAssets.excelFile, `${req.siteId} Excel path`);
 
     // Get locations from assets database
     const dbLocations = assetsDb.prepare(`

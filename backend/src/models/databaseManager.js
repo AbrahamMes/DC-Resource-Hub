@@ -11,12 +11,9 @@
 
 import Database from 'better-sqlite3';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { mkdirSync, existsSync } from 'fs';
 import { getSiteConfig } from '../config/sites.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath } from '../utils/storagePaths.js';
 
 // Connection cache: { 'TTX:issues': db, 'TTX:assets': db, ... }
 const connections = new Map();
@@ -24,10 +21,6 @@ const connections = new Map();
 /**
  * Get the base data directory path
  */
-function getDataDir() {
-  return path.join(__dirname, '../../data');
-}
-
 /**
  * Ensure directory exists
  */
@@ -242,7 +235,7 @@ function getDatabase(siteId, dbType) {
     throw new Error(`Invalid database type: ${dbType}. Must be 'issues', 'assets', or 'commissioning'.`);
   }
 
-  const dbPath = path.join(getDataDir(), dbRelativePath);
+  const dbPath = resolveDataPath(dbRelativePath, `${normalizedSiteId} ${dbType} database path`);
   const siteDir = path.dirname(dbPath);
 
   ensureDir(siteDir);

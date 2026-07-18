@@ -1,9 +1,5 @@
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath } from './storagePaths.js';
 
 /**
  * Location Mapper Utility
@@ -23,7 +19,7 @@ function loadLocationMapping(siteId) {
     return mappingCache.get(siteId);
   }
 
-  const mappingPath = path.join(__dirname, '../../data', siteId, 'location_mapping.json');
+  const mappingPath = resolveDataPath(`${siteId}/location_mapping.json`, `${siteId} location mapping path`);
 
   try {
     if (!fs.existsSync(mappingPath)) {

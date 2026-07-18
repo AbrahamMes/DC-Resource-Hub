@@ -14,15 +14,13 @@ import accessRoutes from './routes/access.js';
 import { requireSiteAccess } from './middleware/siteAccess.js';
 import { assertSingleInstanceEnvironment } from './utils/singleInstanceGuard.js';
 import SqliteSessionStore from './session/sqliteSessionStore.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { startIssueRefreshScheduler } from './services/issueRefreshScheduler.js';
+import { resolveDataPath } from './utils/storagePaths.js';
 
 assertSingleInstanceEnvironment();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const sessionStore = new SqliteSessionStore({
-  dbPath: path.join(__dirname, '../data/sessions.db'),
+  dbPath: resolveDataPath('sessions.db', 'Session database path'),
   cleanupIntervalMs: config.sessionCleanupIntervalMs,
   defaultTtlMs: config.sessionTtlMs
 });

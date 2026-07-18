@@ -4,7 +4,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 1: Remove deployment blockers
 
-- [ ] **Move site definitions out of source code**
+- [x] **Move site definitions out of source code**
   - Replace the hard-coded `TTX` and `TXE` definitions in `backend/src/config/sites.js` with a mounted configuration file or database-backed site registry.
   - Add an environment variable such as `SITES_CONFIG_PATH=/app/config/sites.json`.
   - Move the following values into external site configuration:
@@ -18,12 +18,12 @@ This checklist covers the work required to make the application portable and dep
     - Bluebeam URLs
   - Add a sanitized `sites.example.json` that contains no customer-specific IDs or paths.
 
-- [ ] **Remove the Windows-only TXE Excel path**
+- [x] **Remove the Windows-only TXE Excel path**
   - Remove the absolute `C:\Users\Prime\OneDrive...` path from `backend/src/config/sites.js`.
   - Store imported spreadsheets under the persistent data volume, mount a separate imports directory, or support uploading spreadsheets through the application.
   - Save only container-relative or data-root-relative paths in site configuration.
 
-- [ ] **Make the backend the only source of ACC project configuration**
+- [x] **Make the backend the only source of ACC project configuration**
   - Remove the duplicated `ACC_PROJECTS` object from `Frontend/building-webapp/src/components/AccProjectSelector.jsx`.
   - Return allowed ACC projects and their display names from `/api/sites` or `/api/sites/:siteId`.
   - Populate the frontend project selector from the backend response.
@@ -73,14 +73,14 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 3: Define persistent storage
 
-- [ ] **Introduce explicit data and configuration roots**
+- [x] **Introduce explicit data and configuration roots**
   - Add `DATA_DIR=/app/data`.
   - Add `SITES_CONFIG_PATH=/app/config/sites.json`.
   - Add `BACKUP_DIR=/app/backups`.
   - Update all database and file utilities to resolve mutable paths from `DATA_DIR`, not from the source directory.
   - Reject paths that escape their configured root.
 
-- [ ] **Move all mutable state to persistent storage**
+- [x] **Move all mutable state to persistent storage**
   - Site-specific issues databases
   - Site-specific assets databases
   - Site-specific commissioning databases
@@ -228,11 +228,11 @@ This checklist covers the work required to make the application portable and dep
 
 - [ ] `docker compose up --build` works on a clean machine.
 - [ ] No locally installed Node.js runtime is required to run the application.
-- [ ] No Windows-only path is required inside the containers.
-- [ ] Neither TTX nor TXE is required for the application to start.
-- [ ] A new site can be added through mounted configuration and data without rebuilding an image.
+- [x] No Windows-only path is required inside the containers.
+- [x] Neither TTX nor TXE is required for the application to start.
+- [x] A new site can be added through mounted configuration and data without rebuilding an image.
 - [ ] The frontend retrieves sites, projects, buildings, and rooms dynamically.
-- [ ] The backend rejects project IDs that are not configured for the selected site.
+- [x] The backend rejects project IDs that are not configured for the selected site.
 - [ ] ACC discovery commands list accessible hubs, accounts, projects, companies, users, assignees, and asset categories.
 - [ ] Discovery commands support pagination and optional JSON output.
 - [ ] Sessions survive backend container recreation.

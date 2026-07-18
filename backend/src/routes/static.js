@@ -6,17 +6,11 @@
 
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { existsSync } from 'fs';
 import { getSiteConfig } from '../config/sites.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath, resolveWithinRoot } from '../utils/storagePaths.js';
 
 const router = express.Router();
-
-// Base data directory
-const dataDir = path.join(__dirname, '../../data');
 
 /**
  * GET /api/static/:siteId/building/:filename
@@ -30,17 +24,10 @@ router.get('/:siteId/building/:filename', (req, res) => {
     const siteConfig = getSiteConfig(siteId);
 
     // Build file path
-    const filePath = path.join(dataDir, siteConfig.staticAssets.buildingsDir, filename);
+    const buildingsDir = resolveDataPath(siteConfig.staticAssets.buildingsDir, `${siteId} buildings directory`);
+    const filePath = resolveWithinRoot(buildingsDir, filename, 'Building filename');
 
     // Security: Ensure the resolved path is still within the buildings directory
-    const buildingsDir = path.join(dataDir, siteConfig.staticAssets.buildingsDir);
-    if (!filePath.startsWith(buildingsDir)) {
-      return res.status(403).json({
-        success: false,
-        error: 'Access denied'
-      });
-    }
-
     // Check if file exists
     if (!existsSync(filePath)) {
       return res.status(404).json({
@@ -75,21 +62,13 @@ router.get('/:siteId/schedule/:filename', (req, res) => {
     // Build file path based on filename
     let filePath;
     if (filename === 'schedule.jpg' || filename === 'schedule.png') {
-      filePath = path.join(dataDir, siteConfig.staticAssets.scheduleImage);
+      filePath = resolveDataPath(siteConfig.staticAssets.scheduleImage, `${siteId} schedule image path`);
     } else if (filename === '6-week.pdf') {
-      filePath = path.join(dataDir, siteConfig.staticAssets.schedulePdf);
+      filePath = resolveDataPath(siteConfig.staticAssets.schedulePdf, `${siteId} schedule PDF path`);
     } else {
       // Allow any file from schedules directory
-      const schedulesDir = path.dirname(path.join(dataDir, siteConfig.staticAssets.scheduleImage));
-      filePath = path.join(schedulesDir, filename);
-
-      // Security check
-      if (!filePath.startsWith(schedulesDir)) {
-        return res.status(403).json({
-          success: false,
-          error: 'Access denied'
-        });
-      }
+      const schedulesDir = path.dirname(resolveDataPath(siteConfig.staticAssets.scheduleImage, `${siteId} schedules directory`));
+      filePath = resolveWithinRoot(schedulesDir, filename, 'Schedule filename');
     }
 
     // Check if file exists
@@ -124,7 +103,7 @@ router.get('/:siteId/contacts', (req, res) => {
     const siteConfig = getSiteConfig(siteId);
 
     // Build file path
-    const filePath = path.join(dataDir, siteConfig.staticAssets.contacts);
+    const filePath = resolveDataPath(siteConfig.staticAssets.contacts, `${siteId} contacts path`);
 
     // Check if file exists
     if (!existsSync(filePath)) {
@@ -158,7 +137,7 @@ router.get('/:siteId/excel', (req, res) => {
     const siteConfig = getSiteConfig(siteId);
 
     // Build file path
-    const filePath = path.join(dataDir, siteConfig.staticAssets.excelFile);
+    const filePath = resolveDataPath(siteConfig.staticAssets.excelFile, `${siteId} Excel path`);
 
     // Check if file exists
     if (!existsSync(filePath)) {

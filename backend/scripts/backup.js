@@ -2,11 +2,11 @@ import Database from 'better-sqlite3';
 import { createHash } from 'crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { getBackupDir, getDataDir } from '../src/utils/storagePaths.js';
+import { getSitesConfigPath } from '../src/config/sites.js';
 
-const backendDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dataDir = path.resolve(process.env.BACKUP_SOURCE_DIR || path.join(backendDir, 'data'));
-const backupRoot = path.resolve(process.env.BACKUP_DIR || path.join(backendDir, 'backups'));
+const dataDir = getDataDir();
+const backupRoot = getBackupDir();
 const retentionDays = Number.parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10);
 
 if (!Number.isInteger(retentionDays) || retentionDays < 1) {
@@ -59,9 +59,8 @@ async function createSnapshot() {
     }
   }
 
-  // These define the storage layout but contain no deployment secrets.
-  const configSource = path.join(backendDir, 'src', 'config', 'sites.js');
-  const configDestination = path.join(stagingDir, 'config', 'sites.js');
+  const configSource = getSitesConfigPath();
+  const configDestination = path.join(stagingDir, 'config', 'sites.json');
   mkdirSync(path.dirname(configDestination), { recursive: true });
   cpSync(configSource, configDestination, { preserveTimestamps: true });
 

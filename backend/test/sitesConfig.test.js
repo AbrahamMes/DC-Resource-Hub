@@ -11,6 +11,7 @@ import {
   loadSites
 } from '../src/config/sites.js';
 import { siteContext } from '../src/middleware/siteContext.js';
+import { resolveWithinRoot } from '../src/utils/storagePaths.js';
 
 function withSitesConfig(t, config) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sites-config-'));
@@ -109,4 +110,12 @@ test('site context rejects a client project that is not configured for the site'
 
   assert.equal(statusCode, 400);
   assert.equal(payload.error, 'Invalid ACC project');
+});
+
+test('storage path resolution contains mutable paths within their root', () => {
+  const root = path.resolve('example-data-root');
+  assert.equal(resolveWithinRoot(root, 'site/issues.db'), path.join(root, 'site', 'issues.db'));
+  assert.throws(() => resolveWithinRoot(root, '../issues.db'), /escapes its configured root/);
+  assert.throws(() => resolveWithinRoot(root, 'C:\\outside\\issues.db'), /must be relative/);
+  assert.throws(() => resolveWithinRoot(root, '/outside/issues.db'), /must be relative/);
 });

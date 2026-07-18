@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import appConfig from '../config/config.js';
 import { randomUUID } from 'crypto';
 import { atomicWriteFileSync } from '../utils/atomicFile.js';
@@ -9,12 +8,10 @@ import {
   hasValidScheduleSignature,
   setSiteDefaultScheduleId
 } from '../utils/scheduleFiles.js';
+import { getDataDir, resolveDataPath } from '../utils/storagePaths.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const SCHEDULES_DIR = path.join(__dirname, '../../data');
-const SCHEDULES_CONFIG_FILE = path.join(SCHEDULES_DIR, 'schedules-config.json');
+const SCHEDULES_DIR = getDataDir();
+const SCHEDULES_CONFIG_FILE = resolveDataPath('schedules-config.json', 'Schedule configuration path');
 
 // Ensure config file exists
 if (!fs.existsSync(SCHEDULES_CONFIG_FILE)) {
