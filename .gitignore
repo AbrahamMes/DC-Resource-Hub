@@ -13,6 +13,7 @@ backend/config/sites.json
 *.db
 *.db-journal
 backend/backups/
+backend/data/
 
 # Logs
 logs/
