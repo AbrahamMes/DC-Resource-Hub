@@ -1,0 +1,53 @@
+{
+  "sites": [
+    {
+      "id": "EXAMPLE",
+      "name": "Example Campus",
+      "fullName": "Example Data Center",
+      "description": "Sanitized example site configuration",
+      "defaultAccProjectId": "00000000-0000-0000-0000-000000000000",
+      "accProjects": [
+        {
+          "id": "00000000-0000-0000-0000-000000000000",
+          "key": "example-project",
+          "name": "Example ACC Project"
+        }
+      ],
+      "accAssetCategoryId": "example-category-id",
+      "accAssetCategoryName": "Controls",
+      "accAssignedToId": null,
+      "accAssignedToType": null,
+      "accIncludeAssignedToMembers": false,
+      "clearIssuesBeforeSync": true,
+      "primeControlsAssignedToIds": [],
+      "databases": {
+        "issues": "EXAMPLE/issues.db",
+        "assets": "EXAMPLE/assets.db",
+        "commissioning": "EXAMPLE/commissioning.db"
+      },
+      "staticAssets": {
+        "excelFile": "EXAMPLE/imports/assets.xlsx",
+        "contacts": "EXAMPLE/contacts.json",
+        "scheduleImage": "EXAMPLE/schedules/schedule.jpg",
+        "schedulePdf": "EXAMPLE/schedules/schedule.pdf",
+        "buildingsDir": "EXAMPLE/buildings"
+      },
+      "buildings": [
+        {
+          "id": "building-a",
+          "name": "Building A",
+          "description": "Example building",
+          "bluebeamUrl": "https://example.invalid/session",
+          "rooms": [
+            {
+              "id": "room-101",
+              "name": "Room 101",
+              "fullName": "Example Room 101",
+              "images": { "default": "floor-plan.jpg" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

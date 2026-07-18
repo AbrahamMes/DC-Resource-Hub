@@ -7,6 +7,9 @@ package-lock.json
 .env.local
 .env.production
 
+# Deployment-specific site configuration (copy from sites.example.json)
+backend/config/sites.json
+
 # Database files
 *.db
 *.db-journal
