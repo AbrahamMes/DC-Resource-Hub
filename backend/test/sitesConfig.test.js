@@ -30,12 +30,13 @@ function withSitesConfig(t, config) {
 }
 
 function exampleSite(overrides = {}) {
+  const projectId = '00000000-0000-4000-8000-000000000001';
   return {
     id: 'demo',
     name: 'Demo',
     fullName: 'Demo Site',
-    defaultAccProjectId: 'project-1',
-    accProjects: [{ id: 'project-1', name: 'Project One' }],
+    defaultAccProjectId: projectId,
+    accProjects: [{ id: projectId, name: 'Project One' }],
     databases: {
       issues: 'demo/issues.db',
       assets: 'demo/assets.db',
@@ -51,8 +52,8 @@ test('site definitions load from SITES_CONFIG_PATH and expose projects', (t) => 
   withSitesConfig(t, { sites: [exampleSite()] });
 
   assert.deepEqual(Object.keys(loadSites()), ['DEMO']);
-  assert.equal(getSiteConfig('demo').accProjectId, 'project-1');
-  assert.deepEqual(getAllSites()[0].accProjects, [{ id: 'project-1', name: 'Project One' }]);
+  assert.equal(getSiteConfig('demo').accProjectId, '00000000-0000-4000-8000-000000000001');
+  assert.deepEqual(getAllSites()[0].accProjects, [{ id: '00000000-0000-4000-8000-000000000001', name: 'Project One' }]);
 });
 
 test('default site comes from configuration order or DEFAULT_SITE_ID', (t) => {
@@ -74,6 +75,23 @@ test('default site comes from configuration order or DEFAULT_SITE_ID', (t) => {
 test('site configuration rejects duplicate IDs', (t) => {
   withSitesConfig(t, { sites: [exampleSite(), exampleSite({ id: 'DEMO' })] });
   assert.throws(() => loadSites(), /Duplicate site ID/);
+});
+
+test('site configuration validates Autodesk identifier formats', async (t) => {
+  await t.test('project UUID', (subtest) => {
+    withSitesConfig(subtest, {
+      sites: [exampleSite({
+        defaultAccProjectId: 'not-a-project-id',
+        accProjects: [{ id: 'not-a-project-id', name: 'Invalid' }]
+      })]
+    });
+    assert.throws(() => loadSites(), /must be an Autodesk project UUID/);
+  });
+
+  await t.test('company and member IDs', (subtest) => {
+    withSitesConfig(subtest, { sites: [exampleSite({ primeControlsAssignedToIds: ['invalid id'] })] });
+    assert.throws(() => loadSites(), /valid Autodesk company or member IDs/);
+  });
 });
 
 test('site configuration rejects absolute and escaping data paths', async (t) => {

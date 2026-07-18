@@ -59,7 +59,7 @@ export const config = {
   sessionCleanupIntervalMs: Number(process.env.SESSION_CLEANUP_MINUTES || 15) * 60 * 1000,
   issueRefreshIntervalMs: positiveNumber('ISSUE_REFRESH_INTERVAL_MINUTES', 60) * 60 * 1000,
   issueRefreshStartupDelayMs: positiveNumber('ISSUE_REFRESH_STARTUP_DELAY_SECONDS', 30) * 1000,
-  siteAccessPin: process.env.SITE_ACCESS_PIN?.trim() || null,
+  siteAccessPin: isProduction ? requiredSecret('SITE_ACCESS_PIN') : process.env.SITE_ACCESS_PIN?.trim() || null,
   siteAccessTtlMs: positiveNumber('SITE_ACCESS_TTL_HOURS', 24) * 60 * 60 * 1000,
   siteAccessMaxAttempts: positiveNumber('SITE_ACCESS_MAX_ATTEMPTS', 5),
   siteAccessAttemptWindowMs: positiveNumber('SITE_ACCESS_LOCKOUT_MINUTES', 15) * 60 * 1000,
@@ -96,7 +96,7 @@ export const config = {
   // Security
   // Keep PIN-protected operations unavailable when the local PIN is not configured,
   // without preventing unrelated routes such as Autodesk login from starting.
-  syncPin: process.env.SYNC_PIN?.trim() || null
+  syncPin: isProduction ? requiredSecret('SYNC_PIN') : process.env.SYNC_PIN?.trim() || null
 };
 
 export default config;

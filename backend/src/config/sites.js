@@ -11,6 +11,8 @@ const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
 const defaultConfigPath = path.resolve(moduleDirectory, '../../config/sites.json');
 const requiredDatabaseKeys = ['issues', 'assets', 'commissioning'];
 const pathFields = ['excelFile', 'contacts', 'scheduleImage', 'schedulePdf', 'buildingsDir'];
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const externalIdPattern = /^[A-Za-z0-9._:-]{1,128}$/;
 
 let cachedSites;
 let cachedConfigPath;
@@ -58,6 +60,9 @@ function validateSite(site, index, ids) {
   for (const [projectIndex, project] of site.accProjects.entries()) {
     assertNonEmptyString(project?.id, `${prefix}.accProjects[${projectIndex}].id`);
     assertNonEmptyString(project?.name, `${prefix}.accProjects[${projectIndex}].name`);
+    if (!uuidPattern.test(project.id)) {
+      throw new Error(`${prefix}.accProjects[${projectIndex}].id must be an Autodesk project UUID`);
+    }
     if (projectIds.has(project.id)) throw new Error(`Duplicate project ID in site ${site.id}: ${project.id}`);
     projectIds.add(project.id);
   }
@@ -81,6 +86,14 @@ function validateSite(site, index, ids) {
 
   if (site.buildings != null && !Array.isArray(site.buildings)) {
     throw new Error(`${prefix}.buildings must be an array`);
+  }
+  if (site.accAssetCategoryId != null && !externalIdPattern.test(String(site.accAssetCategoryId))) {
+    throw new Error(`${prefix}.accAssetCategoryId has an invalid format`);
+  }
+  if (site.primeControlsAssignedToIds != null) {
+    if (!Array.isArray(site.primeControlsAssignedToIds) || site.primeControlsAssignedToIds.some((id) => !externalIdPattern.test(String(id)))) {
+      throw new Error(`${prefix}.primeControlsAssignedToIds must contain valid Autodesk company or member IDs`);
+    }
   }
 
   return {

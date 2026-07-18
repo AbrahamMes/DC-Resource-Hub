@@ -176,7 +176,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 7: Initialization and configuration validation
 
-- [ ] **Add a container startup preflight**
+- [x] **Add a container startup preflight**
   - [x] Confirm that the site configuration exists and parses successfully.
   - [x] Confirm site IDs are present, valid, and unique.
   - [x] Confirm `DEFAULT_SITE_ID` exists when configured.
@@ -184,7 +184,7 @@ This checklist covers the work required to make the application portable and dep
   - [x] Confirm each default project belongs to the corresponding site.
   - [x] Confirm database and static-data paths remain inside `DATA_DIR`.
   - [x] Reject Windows absolute paths in a Linux container.
-  - Validate company, member, project, and category ID formats where practical.
+  - [x] Validate company, member, project, and category ID formats where practical.
   - [x] Confirm required directories exist or can be created and are writable.
   - [x] Confirm required secrets and public URLs are valid.
   - [x] Initialize or migrate SQLite schemas before accepting traffic.
