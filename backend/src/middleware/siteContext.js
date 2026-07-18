@@ -5,7 +5,7 @@
  * site configuration to req.siteId and req.siteConfig.
  */
 
-import { getSiteConfig, isValidSite } from '../config/sites.js';
+import { getDefaultSiteId, getSiteConfig, isValidSite } from '../config/sites.js';
 
 /**
  * Middleware to extract and validate site context from request
@@ -15,7 +15,7 @@ import { getSiteConfig, isValidSite } from '../config/sites.js';
  * 2. Request body: { site: 'TTX' }
  * 3. Session: req.session.siteId
  *
- * If no site is specified, defaults to 'TTX' for backwards compatibility
+ * If no site is specified, uses DEFAULT_SITE_ID or the first configured site.
  *
  * Attaches the following to request object:
  * - req.siteId: The site identifier (e.g., 'TTX')
@@ -23,8 +23,8 @@ import { getSiteConfig, isValidSite } from '../config/sites.js';
  */
 export function siteContext(req, res, next) {
   try {
-    // Extract site ID from request (priority: query > body > session > default)
-    let siteId = req.query.site || req.body?.site || req.session?.siteId || 'TTX';
+    // Extract site ID from request (priority: query > body > session > configured default)
+    let siteId = req.query.site || req.body?.site || req.session?.siteId || getDefaultSiteId();
 
     // Normalize to uppercase
     siteId = siteId.toUpperCase();

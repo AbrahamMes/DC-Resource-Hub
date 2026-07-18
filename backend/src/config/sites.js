@@ -141,6 +141,15 @@ export function getAllSiteIds() {
   return Object.keys(loadSites());
 }
 
+export function getDefaultSiteId() {
+  const sites = loadSites();
+  const configuredDefault = process.env.DEFAULT_SITE_ID?.toUpperCase();
+  if (configuredDefault && !Object.hasOwn(sites, configuredDefault)) {
+    throw new Error(`DEFAULT_SITE_ID '${process.env.DEFAULT_SITE_ID}' is not present in the site configuration`);
+  }
+  return configuredDefault || Object.keys(sites)[0];
+}
+
 export function getAllSites() {
   return Object.values(loadSites()).map(({ id, name, fullName, description, accProjects, defaultAccProjectId }) => ({
     id,

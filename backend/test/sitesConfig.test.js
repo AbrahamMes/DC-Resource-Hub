@@ -6,6 +6,7 @@ import path from 'node:path';
 import {
   clearSitesCache,
   getAllSites,
+  getDefaultSiteId,
   getSiteConfig,
   loadSites
 } from '../src/config/sites.js';
@@ -51,6 +52,22 @@ test('site definitions load from SITES_CONFIG_PATH and expose projects', (t) => 
   assert.deepEqual(Object.keys(loadSites()), ['DEMO']);
   assert.equal(getSiteConfig('demo').accProjectId, 'project-1');
   assert.deepEqual(getAllSites()[0].accProjects, [{ id: 'project-1', name: 'Project One' }]);
+});
+
+test('default site comes from configuration order or DEFAULT_SITE_ID', (t) => {
+  withSitesConfig(t, { sites: [exampleSite(), exampleSite({ id: 'second' })] });
+  const previousDefault = process.env.DEFAULT_SITE_ID;
+  t.after(() => {
+    if (previousDefault === undefined) delete process.env.DEFAULT_SITE_ID;
+    else process.env.DEFAULT_SITE_ID = previousDefault;
+  });
+
+  delete process.env.DEFAULT_SITE_ID;
+  assert.equal(getDefaultSiteId(), 'DEMO');
+  process.env.DEFAULT_SITE_ID = 'second';
+  assert.equal(getDefaultSiteId(), 'SECOND');
+  process.env.DEFAULT_SITE_ID = 'missing';
+  assert.throws(() => getDefaultSiteId(), /is not present/);
 });
 
 test('site configuration rejects duplicate IDs', (t) => {

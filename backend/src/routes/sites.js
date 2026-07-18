@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllSites, getSiteConfig } from '../config/sites.js';
+import { getAllSites, getDefaultSiteId, getSiteConfig } from '../config/sites.js';
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.get('/', (req, res) => {
 
     res.json({
       success: true,
+      defaultSiteId: getDefaultSiteId(),
       sites
     });
   } catch (error) {
