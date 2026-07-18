@@ -40,6 +40,16 @@ export function siteContext(req, res, next) {
     // Get site configuration
     const siteConfig = getSiteConfig(siteId);
 
+    // Any project selected by a client must belong to this site. Controllers
+    // may still use the site's configured default when no project is supplied.
+    const projectId = req.query.projectId || req.body?.projectId;
+    if (projectId && !siteConfig.accProjects.some((project) => project.id === projectId)) {
+      return res.status(400).json({
+        error: 'Invalid ACC project',
+        message: `Project '${projectId}' is not configured for site '${siteId}'.`
+      });
+    }
+
     // Attach to request object
     req.siteId = siteId;
     req.siteConfig = siteConfig;

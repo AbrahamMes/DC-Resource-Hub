@@ -7,8 +7,10 @@ const API_BASE_URL = config.apiBaseUrl;
 const STATUS_OPTIONS = ["Open", "Closed", "Completed", "In Progress", "Pending"];
 
 export default function Issues() {
-  const { currentSite } = useSite();
-  const [projectId, setProjectId] = useState(() => getSavedAccProjectId(currentSite));
+  const { currentSite, availableSites } = useSite();
+  const currentSiteConfig = availableSites.find((site) => site.id === currentSite);
+  const projects = currentSiteConfig?.accProjects || [];
+  const [projectId, setProjectId] = useState("");
 
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,11 @@ export default function Issues() {
   const [expandedIssueId, setExpandedIssueId] = useState(null);
 
   useEffect(() => {
-    const savedProjectId = getSavedAccProjectId(currentSite);
+    const savedProjectId = getSavedAccProjectId(
+      currentSite,
+      projects,
+      currentSiteConfig?.defaultAccProjectId
+    );
     if (savedProjectId !== projectId) {
       setProjectId(savedProjectId);
       return;
@@ -36,7 +42,7 @@ export default function Issues() {
       fetchIssues();
       fetchSyncStatus();
     }
-  }, [currentSite, projectId]);
+  }, [currentSite, projectId, currentSiteConfig]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

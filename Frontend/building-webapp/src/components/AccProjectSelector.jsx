@@ -1,27 +1,16 @@
 import React from "react";
+import { useSite } from "../contexts/SiteContext";
 
-const ACC_PROJECTS = {
-  TXE: [
-    { id: "fe0c7a6d-1115-42d7-897e-206f80b63edb", name: "Hensel Phelps" },
-    { id: "a0482399-f629-4aeb-9245-4da64cc2ac1c", name: "JE Dunn" }
-  ],
-  TTX: [
-    { id: "b38e25ea-eca5-4a70-9f0b-85eeb399056f", name: "Temple Data Center" }
-  ]
-};
-
-export function getAccProjects(siteId) {
-  return ACC_PROJECTS[String(siteId || "").toUpperCase()] || [];
-}
-
-export function getSavedAccProjectId(siteId) {
-  const projects = getAccProjects(siteId);
+export function getSavedAccProjectId(siteId, projects = [], defaultProjectId = "") {
   const savedId = localStorage.getItem(`selectedAccProject:${siteId}`);
-  return projects.some((project) => project.id === savedId) ? savedId : projects[0]?.id || "";
+  if (projects.some((project) => project.id === savedId)) return savedId;
+  if (projects.some((project) => project.id === defaultProjectId)) return defaultProjectId;
+  return projects[0]?.id || "";
 }
 
 export default function AccProjectSelector({ siteId, value, onChange }) {
-  const projects = getAccProjects(siteId);
+  const { availableSites } = useSite();
+  const projects = availableSites.find((site) => site.id === siteId)?.accProjects || [];
   if (projects.length < 2) return null;
 
   return (

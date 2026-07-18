@@ -9,6 +9,7 @@ import {
   getSiteConfig,
   loadSites
 } from '../src/config/sites.js';
+import { siteContext } from '../src/middleware/siteContext.js';
 
 function withSitesConfig(t, config) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sites-config-'));
@@ -71,4 +72,24 @@ test('site configuration rejects absolute and escaping data paths', async (t) =>
     });
     assert.throws(() => loadSites(), /must not escape DATA_DIR/);
   });
+});
+
+test('site context rejects a client project that is not configured for the site', (t) => {
+  withSitesConfig(t, { sites: [exampleSite()] });
+  const request = {
+    query: { site: 'demo', projectId: 'another-project' },
+    body: {},
+    session: {}
+  };
+  let statusCode;
+  let payload;
+  const response = {
+    status(code) { statusCode = code; return this; },
+    json(value) { payload = value; }
+  };
+
+  siteContext(request, response, () => assert.fail('invalid project reached the route'));
+
+  assert.equal(statusCode, 400);
+  assert.equal(payload.error, 'Invalid ACC project');
 });

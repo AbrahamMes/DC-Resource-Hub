@@ -35,6 +35,9 @@ router.get('/:siteId', (req, res) => {
         id: siteConfig.id,
         name: siteConfig.name,
         fullName: siteConfig.fullName,
+        description: siteConfig.description,
+        accProjects: siteConfig.accProjects,
+        defaultAccProjectId: siteConfig.defaultAccProjectId,
         buildings: siteConfig.buildings,
         staticAssets: siteConfig.staticAssets
       }
