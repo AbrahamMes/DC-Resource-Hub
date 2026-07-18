@@ -16,7 +16,7 @@ No host Node.js installation is required.
 
 ## Initial setup
 
-1. Copy `backend/.env.docker.example` to `backend/.env` and fill every secret. Local HTTP testing requires `ALLOW_INSECURE_LOCALHOST=true`. Remove that setting in production.
+1. Copy `backend/.env.docker.example` to `backend/.env` and fill every secret. Controlled local/LAN HTTP deployments require `ALLOW_INSECURE_HTTP=true`. Leave it false or remove it when TLS is available.
 2. Copy `backend/config/sites.example.json` to `backend/config/sites.json` and replace all example metadata with discovered values. Keep database and file paths relative to `DATA_DIR`.
 3. Validate configuration:
 
@@ -48,7 +48,9 @@ Add or remove a site by editing the mounted `sites.json`, creating its data file
 
 ## OAuth, proxy, and secrets
 
-The public topology is same-origin: Nginx serves React and proxies `/api` and `/health`. In production set both `FRONTEND_URL` and the origin of `APS_CALLBACK_URL` to the final HTTPS origin, set `APS_CALLBACK_URL=https://HOST/api/auth/callback`, register that exact callback in APS, and remove `ALLOW_INSECURE_LOCALHOST`. Production startup rejects HTTP, localhost, and mismatched origins. `TRUST_PROXY=1`, secure cookies, and `SameSite=lax` are the normal same-origin settings.
+The public topology is same-origin: Nginx serves React and proxies `/api` and `/health`. For an internet-connected deployment, set both `FRONTEND_URL` and the origin of `APS_CALLBACK_URL` to the final HTTPS origin, use `APS_CALLBACK_URL=https://HOST/api/auth/callback`, register that exact callback in APS, and leave `ALLOW_INSECURE_HTTP=false`. Secure mode rejects HTTP and localhost. `TRUST_PROXY=1`, secure cookies, and `SameSite=lax` are the normal same-origin settings.
+
+For an isolated controlled network without TLS, set `ALLOW_INSECURE_HTTP=true`, `SESSION_COOKIE_SECURE=false`, and use the same HTTP origin for `FRONTEND_URL` and `APS_CALLBACK_URL` (for example `http://192.168.10.25:8080`). Register that exact HTTP callback with Autodesk if OAuth will be used. This option deliberately relaxes transport security and should not be exposed to the internet.
 
 Supply credentials only at runtime. Do not place secrets in Compose, Dockerfiles, build arguments, frontend variables, `sites.json`, or logs. `backend/.env` is suitable only for local testing. Production deployments should inject environment variables from Docker secrets or the hosting provider's secret manager.
 

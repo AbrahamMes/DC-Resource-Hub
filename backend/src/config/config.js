@@ -47,7 +47,7 @@ if (isProduction) {
   validateProductionPublicUrls({
     frontendUrl,
     callbackUrl,
-    allowInsecureLocalhost: process.env.ALLOW_INSECURE_LOCALHOST === 'true'
+    allowInsecureHttp: process.env.ALLOW_INSECURE_HTTP === 'true' || process.env.ALLOW_INSECURE_LOCALHOST === 'true'
   });
 }
 

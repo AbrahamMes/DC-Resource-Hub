@@ -168,7 +168,7 @@ This checklist covers the work required to make the application portable and dep
   - Never pass secrets through frontend variables, image build arguments, logs, or committed configuration.
 
 - [ ] **Validate public URLs and cookies**
-  - [x] Make production startup reject localhost frontend and OAuth callback URLs.
+  - [x] Require HTTPS by default, with an explicit `ALLOW_INSECURE_HTTP` option for controlled local/LAN deployments.
   - Register the final HTTPS callback URL in the Autodesk application.
   - [x] Decide whether the frontend and backend are same-origin or cross-origin.
   - [x] Configure `TRUST_PROXY`, secure cookies, and `SameSite` for the selected topology.

@@ -103,6 +103,11 @@ test('production public URLs require HTTPS, non-localhost, same-origin values', 
   assert.doesNotThrow(() => validateProductionPublicUrls({
     frontendUrl: 'http://localhost:8080',
     callbackUrl: 'http://localhost:8080/api/auth/callback',
-    allowInsecureLocalhost: true
+    allowInsecureHttp: true
+  }));
+  assert.doesNotThrow(() => validateProductionPublicUrls({
+    frontendUrl: 'http://192.168.10.25:8080',
+    callbackUrl: 'http://192.168.10.25:8080/api/auth/callback',
+    allowInsecureHttp: true
   }));
 });
