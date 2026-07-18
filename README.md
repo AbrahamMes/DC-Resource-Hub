@@ -11,6 +11,10 @@ A container-ready, multi-site operations dashboard for Autodesk Construction Clo
 - Persistent SQLite session store and hourly issue-refresh scheduler
 - Single backend replica by design
 
+## Required Autodesk setup: 
+- Autodesk Platform Services developer hub setup
+- Application with Client ID and Secret for API access
+
 ## Docker quick start
 
 1. Copy `backend/.env.docker.example` to `backend/.env` and provide the required secrets.
