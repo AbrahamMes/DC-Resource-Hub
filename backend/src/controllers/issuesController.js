@@ -199,17 +199,17 @@ function formatLocalIssue(issue, primeControlsIds) {
   };
 }
 
-async function getAllIssuesFromAcc({ accessToken, projectId }) {
+export async function getAllIssuesFromAcc({ accessToken, projectId, get = axios.get }) {
   const url = `${config.acc.issuesApiUrl}/projects/${projectId}/issues`;
 
   let allIssues = [];
   let offset = 0;
   const limit = 100;
-  let hasMore = true;
   const seenIssueIds = new Set();
+  let totalResults = null;
 
-  while (hasMore) {
-    const response = await axios.get(url, {
+  while (totalResults === null || offset < totalResults) {
+    const response = await get(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
@@ -223,6 +223,18 @@ async function getAllIssuesFromAcc({ accessToken, projectId }) {
 
     const pageIssues = response.data.results || response.data.data || [];
     const pagination = response.data.pagination || {};
+    const reportedTotal = Number(pagination.totalResults);
+
+    if (!Number.isInteger(reportedTotal) || reportedTotal < 0) {
+      throw new Error('ACC issues response did not include a valid pagination.totalResults');
+    }
+
+    // Use the first page's total as the boundary for this sync. Comparing the
+    // offset (rather than the number of unique records collected) follows the
+    // ACC pagination contract and cannot run past the final page.
+    if (totalResults === null) {
+      totalResults = reportedTotal;
+    }
     const newIssues = pageIssues.filter((issue) => {
       const issueId = issue?.id;
 
@@ -243,21 +255,24 @@ async function getAllIssuesFromAcc({ accessToken, projectId }) {
 
     allIssues = allIssues.concat(newIssues);
 
-    console.log(`📥 ACC issues page: ${pageIssues.length} issues, total so far: ${allIssues.length}`);
+    console.log(
+      `📥 ACC issues page: ${pageIssues.length} issues, ` +
+      `total so far: ${allIssues.length}/${totalResults}`
+    );
 
-    if (
-      Number.isFinite(Number(pagination.totalResults)) &&
-      allIssues.length >= Number(pagination.totalResults)
-    ) {
-      hasMore = false;
-    } else if (pageIssues.length > 0 && newIssues.length === 0) {
+    if (pageIssues.length > 0 && newIssues.length === 0) {
       console.warn(`ACC issues pagination stopped: offset ${offset} returned no new issues`);
-      hasMore = false;
-    } else if (pageIssues.length < limit) {
-      hasMore = false;
-    } else {
-      offset += limit;
+      break;
     }
+
+    if (pageIssues.length === 0 || pageIssues.length < limit) {
+      break;
+    }
+
+    const responseLimit = Number(pagination.limit);
+    offset += Number.isInteger(responseLimit) && responseLimit > 0
+      ? responseLimit
+      : limit;
   }
 
   return allIssues;
