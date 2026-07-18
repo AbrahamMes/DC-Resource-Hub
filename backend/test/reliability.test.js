@@ -11,6 +11,7 @@ import {
   setSiteDefaultScheduleId
 } from '../src/utils/scheduleFiles.js';
 import { requireSiteAccess } from '../src/middleware/siteAccess.js';
+import { validateProductionPublicUrls } from '../src/utils/publicUrls.js';
 
 test('atomic writers replace files without leaving temporary files', async (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-atomic-'));
@@ -84,4 +85,24 @@ test('site access middleware allows only a current unlocked session', () => {
   assert.equal(statusCode, 401);
   assert.equal(payload.siteLocked, true);
   assert.equal(expiredRequest.session.siteAccessGranted, undefined);
+});
+
+test('production public URLs require HTTPS, non-localhost, same-origin values', () => {
+  assert.doesNotThrow(() => validateProductionPublicUrls({
+    frontendUrl: 'https://resources.example.com',
+    callbackUrl: 'https://resources.example.com/api/auth/callback'
+  }));
+  assert.throws(() => validateProductionPublicUrls({
+    frontendUrl: 'http://localhost:8080',
+    callbackUrl: 'http://localhost:8080/api/auth/callback'
+  }), /must not use localhost/);
+  assert.throws(() => validateProductionPublicUrls({
+    frontendUrl: 'https://resources.example.com',
+    callbackUrl: 'https://api.example.com/api/auth/callback'
+  }), /same public origin/);
+  assert.doesNotThrow(() => validateProductionPublicUrls({
+    frontendUrl: 'http://localhost:8080',
+    callbackUrl: 'http://localhost:8080/api/auth/callback',
+    allowInsecureLocalhost: true
+  }));
 });

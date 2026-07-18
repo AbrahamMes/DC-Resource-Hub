@@ -152,7 +152,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 6: Environment variables and secrets
 
-- [ ] **Supply secrets only at runtime**
+- [x] **Supply secrets only at runtime**
   - `APS_CLIENT_ID`
   - `APS_CLIENT_SECRET`
   - `APS_CALLBACK_URL`
@@ -168,10 +168,10 @@ This checklist covers the work required to make the application portable and dep
   - Never pass secrets through frontend variables, image build arguments, logs, or committed configuration.
 
 - [ ] **Validate public URLs and cookies**
-  - Make production startup reject localhost frontend and OAuth callback URLs.
+  - [x] Make production startup reject localhost frontend and OAuth callback URLs.
   - Register the final HTTPS callback URL in the Autodesk application.
-  - Decide whether the frontend and backend are same-origin or cross-origin.
-  - Configure `TRUST_PROXY`, secure cookies, and `SameSite` for the selected topology.
+  - [x] Decide whether the frontend and backend are same-origin or cross-origin.
+  - [x] Configure `TRUST_PROXY`, secure cookies, and `SameSite` for the selected topology.
   - Test login, callback, session restoration, and logout through the public reverse proxy.
 
 ## Priority 7: Initialization and configuration validation
@@ -186,7 +186,7 @@ This checklist covers the work required to make the application portable and dep
   - [x] Reject Windows absolute paths in a Linux container.
   - Validate company, member, project, and category ID formats where practical.
   - [x] Confirm required directories exist or can be created and are writable.
-  - Confirm required secrets and public URLs are valid.
+  - [x] Confirm required secrets and public URLs are valid.
   - [x] Initialize or migrate SQLite schemas before accepting traffic.
   - [x] Exit with a clear, actionable error if validation fails.
 

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { validateProductionPublicUrls } from '../utils/publicUrls.js';
 
 const configDirectory = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(configDirectory, '../../.env') });
@@ -40,6 +41,16 @@ if (sessionCookieSameSite === 'none' && !sessionCookieSecure) {
   throw new Error('SESSION_COOKIE_SAME_SITE=none requires secure cookies and HTTPS');
 }
 
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const callbackUrl = process.env.APS_CALLBACK_URL || 'http://localhost:3001/api/auth/callback';
+if (isProduction) {
+  validateProductionPublicUrls({
+    frontendUrl,
+    callbackUrl,
+    allowInsecureLocalhost: process.env.ALLOW_INSECURE_LOCALHOST === 'true'
+  });
+}
+
 export const config = {
   // Server
   port: process.env.PORT || 3001,
@@ -52,7 +63,7 @@ export const config = {
   siteAccessTtlMs: positiveNumber('SITE_ACCESS_TTL_HOURS', 24) * 60 * 60 * 1000,
   siteAccessMaxAttempts: positiveNumber('SITE_ACCESS_MAX_ATTEMPTS', 5),
   siteAccessAttemptWindowMs: positiveNumber('SITE_ACCESS_LOCKOUT_MINUTES', 15) * 60 * 1000,
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  frontendUrl,
   trustProxy,
   sessionCookie: {
     secure: sessionCookieSecure,
@@ -64,7 +75,7 @@ export const config = {
   aps: {
     clientId: requiredSecret('APS_CLIENT_ID'),
     clientSecret: requiredSecret('APS_CLIENT_SECRET'),
-    callbackUrl: process.env.APS_CALLBACK_URL || 'http://localhost:3001/api/auth/callback',
+    callbackUrl,
 
     // account:read is needed so we can read ACC project users
     // and find which users belong to Prime Controls.
