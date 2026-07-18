@@ -11,14 +11,16 @@ services:
       DATA_DIR: /app/data
       SITES_CONFIG_PATH: /app/config/sites.json
       BACKUP_DIR: /app/backups
+      DEFAULT_SITE_ID: TXE
       WEB_CONCURRENCY: "1"
       TRUST_PROXY: "1"
       FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
       APS_CALLBACK_URL: ${PUBLIC_URL:-http://localhost:8080}/api/auth/callback
     volumes:
       - app-data:/app/data
+      - ./backend/data/TXE:/app/data/TXE
       - app-backups:/app/backups
-      - ./backend/config/sites.json:/app/config/sites.json:ro
+      - ./backend/config/sites.txe.json:/app/config/sites.json:ro
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 30s
