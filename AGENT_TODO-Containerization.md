@@ -91,7 +91,7 @@ This checklist covers the work required to make the application portable and dep
   - Imported Excel files
   - Other administrator-uploaded files
 
-- [ ] **Keep runtime data out of container images**
+- [x] **Keep runtime data out of container images**
   - Mount `/app/data` as a named volume or host volume.
   - Mount `/app/config` read-only where practical.
   - Do not bake live databases, sessions, uploads, customer spreadsheets, or backups into an image.
@@ -134,7 +134,7 @@ This checklist covers the work required to make the application portable and dep
   - Proxy `/api` and `/health` to the backend so the browser can use one public origin.
   - Do not include source-only customer resources in the runtime image.
 
-- [ ] **Create local orchestration**
+- [x] **Create local orchestration**
   - Add a root `docker-compose.yml`.
   - Define frontend and backend services.
   - Define the persistent data volume.
@@ -143,7 +143,7 @@ This checklist covers the work required to make the application portable and dep
   - Set `restart: unless-stopped` or the chosen deployment policy.
   - Do not commit real secret values in the Compose file.
 
-- [ ] **Add supporting Docker files**
+- [x] **Add supporting Docker files**
   - Add root and service-specific `.dockerignore` files as appropriate.
   - Add an Nginx or Caddy configuration for frontend serving and API proxying.
   - Add a container entrypoint/startup script for validation and directory initialization.
