@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { createHash } from 'crypto';
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statfsSync, statSync, writeFileSync } from 'fs';
 import path from 'path';
 import { getBackupDir, getDataDir } from '../src/utils/storagePaths.js';
 import { getSitesConfigPath } from '../src/config/sites.js';
@@ -8,9 +8,10 @@ import { getSitesConfigPath } from '../src/config/sites.js';
 const dataDir = getDataDir();
 const backupRoot = getBackupDir();
 const retentionDays = Number.parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10);
+const minimumFreeMb = Number.parseInt(process.env.BACKUP_MIN_FREE_MB || '1024', 10);
 
-if (!Number.isInteger(retentionDays) || retentionDays < 1) {
-  throw new Error('BACKUP_RETENTION_DAYS must be a positive integer');
+if (!Number.isInteger(retentionDays) || retentionDays < 1 || !Number.isInteger(minimumFreeMb) || minimumFreeMb < 0) {
+  throw new Error('BACKUP_RETENTION_DAYS must be positive and BACKUP_MIN_FREE_MB must be zero or greater');
 }
 
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -90,6 +91,11 @@ function pruneExpiredSnapshots() {
 
 try {
   mkdirSync(backupRoot, { recursive: true });
+  const filesystem = statfsSync(backupRoot);
+  const freeBytes = filesystem.bavail * filesystem.bsize;
+  if (freeBytes < minimumFreeMb * 1024 * 1024) {
+    throw new Error(`Backup volume has less than ${minimumFreeMb} MB free`);
+  }
   rmSync(stagingDir, { recursive: true, force: true });
   await createSnapshot();
   pruneExpiredSnapshots();

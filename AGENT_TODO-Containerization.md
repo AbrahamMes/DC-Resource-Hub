@@ -65,7 +65,7 @@ This checklist covers the work required to make the application portable and dep
   - Clearly report missing scopes, insufficient account permissions, expired authentication, and inaccessible projects.
   - Avoid requiring operators to infer company or member IDs by downloading issues or assets.
 
-- [ ] **Document Autodesk discovery requirements**
+- [x] **Document Autodesk discovery requirements**
   - Document the difference between Data Management hubs/projects and ACC Admin accounts/projects/users/companies.
   - Confirm and document the required OAuth scopes, including `account:read` where applicable.
   - Document the account and project permissions required by the authenticated Autodesk user.
@@ -99,14 +99,14 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 4: Define the deployment model
 
-- [ ] **Support a safe single-instance deployment first**
+- [x] **Support a safe single-instance deployment first**
   - Run a frontend/reverse-proxy container and one backend container.
   - Mount persistent storage into the backend container.
   - Set `WEB_CONCURRENCY=1`.
   - Preserve and test the checks in `backend/src/utils/singleInstanceGuard.js`.
   - Document that SQLite, local uploads, and the in-process issue scheduler require exactly one backend replica.
 
-- [ ] **Document the path to horizontal scaling**
+- [x] **Document the path to horizontal scaling**
   - Move relational data and sessions from SQLite to PostgreSQL.
   - Move schedules, contacts, drawings, imports, and uploads to shared object storage.
   - Move scheduled issue refreshes into a separate worker or job service.
@@ -161,7 +161,7 @@ This checklist covers the work required to make the application portable and dep
   - `SYNC_PIN`
   - `FRONTEND_URL`
 
-- [ ] **Protect secret material**
+- [x] **Protect secret material**
   - Ensure `backend/.env` and all local environment copies are excluded from Git and Docker build contexts.
   - Keep example environment files free of real credentials and customer IDs.
   - Use Docker secrets or the hosting provider's secret manager in production.
@@ -190,7 +190,7 @@ This checklist covers the work required to make the application portable and dep
   - [x] Initialize or migrate SQLite schemas before accepting traffic.
   - [x] Exit with a clear, actionable error if validation fails.
 
-- [ ] **Make first-run initialization explicit**
+- [x] **Make first-run initialization explicit**
   - [x] Define whether empty site databases are created automatically or by a setup command.
   - Define how initial contacts, mappings, and building directories are created.
   - [x] Ensure initialization is idempotent and does not overwrite existing data.
@@ -198,7 +198,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 8: Backups and lifecycle behavior
 
-- [ ] **Make backups container-aware**
+- [x] **Make backups container-aware**
   - Continue using SQLite-aware backup operations rather than copying live `.db` files directly.
   - Include contacts, schedules, mappings, drawings, imported spreadsheets, and other mutable files.
   - Write backups outside the primary application data volume when possible.
@@ -213,7 +213,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 9: Documentation
 
-- [ ] **Add Docker documentation to the repository**
+- [x] **Add Docker documentation to the repository**
   - Document prerequisites and supported Docker/Compose versions.
   - Document initial environment and site configuration.
   - Document local startup and shutdown commands.
