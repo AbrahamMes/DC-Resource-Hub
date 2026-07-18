@@ -47,7 +47,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 2: Add Autodesk ACC discovery and setup tooling
 
-- [ ] **Create authenticated discovery commands**
+- [x] **Create authenticated discovery commands**
   - Add `npm run acc:list-hubs`.
   - Add `npm run acc:list-projects -- --hub <id>`.
   - Add `npm run acc:list-accounts`.
@@ -58,7 +58,7 @@ This checklist covers the work required to make the application portable and dep
   - Add `npm run acc:list-asset-categories -- --project <id>`.
   - [x] Add `npm run site:validate -- --config /app/config/sites.json`.
 
-- [ ] **Make discovery output useful for configuration**
+- [x] **Make discovery output useful for configuration**
   - Print readable tables containing names, IDs, types, account/project relationships, and other useful metadata.
   - Add an optional JSON output mode that can feed site configuration generation.
   - Handle Autodesk pagination for every listing command.
@@ -234,7 +234,7 @@ This checklist covers the work required to make the application portable and dep
 - [x] The frontend retrieves sites, projects, buildings, and rooms dynamically.
 - [x] The backend rejects project IDs that are not configured for the selected site.
 - [ ] ACC discovery commands list accessible hubs, accounts, projects, companies, users, assignees, and asset categories.
-- [ ] Discovery commands support pagination and optional JSON output.
+- [x] Discovery commands support pagination and optional JSON output.
 - [ ] Sessions survive backend container recreation.
 - [ ] Issues, assets, and commissioning data survive backend container recreation.
 - [ ] Uploaded schedules, contacts, mappings, drawings, and imported spreadsheets survive container recreation.

@@ -11,7 +11,15 @@
     "setup-check": "node setup-check.js",
     "backup": "node scripts/backup.js",
     "backup:verify": "node scripts/verify-backup.js",
-    "site:validate": "node scripts/validate-sites.js"
+    "site:validate": "node scripts/validate-sites.js",
+    "acc:list-hubs": "node scripts/acc-discovery.js list-hubs",
+    "acc:list-projects": "node scripts/acc-discovery.js list-projects",
+    "acc:list-accounts": "node scripts/acc-discovery.js list-accounts",
+    "acc:list-companies": "node scripts/acc-discovery.js list-companies",
+    "acc:list-project-users": "node scripts/acc-discovery.js list-project-users",
+    "acc:find-company": "node scripts/acc-discovery.js find-company",
+    "acc:inspect-assignees": "node scripts/acc-discovery.js inspect-assignees",
+    "acc:list-asset-categories": "node scripts/acc-discovery.js list-asset-categories"
   },
   "dependencies": {
     "axios": "^1.7.9",
