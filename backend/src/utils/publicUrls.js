@@ -22,3 +22,11 @@ export function validateProductionPublicUrls({ frontendUrl, callbackUrl, allowIn
     throw new Error('FRONTEND_URL and APS_CALLBACK_URL must use the same public origin');
   }
 }
+
+export function resolveSessionCookieSecure({ isProduction, allowInsecureHttp, configuredValue }) {
+  if (!isProduction) return configuredValue === 'true';
+
+  if (allowInsecureHttp && configuredValue === 'false') return false;
+
+  return true;
+}

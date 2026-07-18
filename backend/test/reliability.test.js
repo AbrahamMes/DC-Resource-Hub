@@ -11,7 +11,7 @@ import {
   setSiteDefaultScheduleId
 } from '../src/utils/scheduleFiles.js';
 import { requireSiteAccess } from '../src/middleware/siteAccess.js';
-import { validateProductionPublicUrls } from '../src/utils/publicUrls.js';
+import { resolveSessionCookieSecure, validateProductionPublicUrls } from '../src/utils/publicUrls.js';
 
 test('atomic writers replace files without leaving temporary files', async (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'acc-atomic-'));
@@ -110,4 +110,27 @@ test('production public URLs require HTTPS, non-localhost, same-origin values', 
     callbackUrl: 'http://192.168.10.25:8080/api/auth/callback',
     allowInsecureHttp: true
   }));
+});
+
+test('production session cookies may be insecure only for an explicitly allowed HTTP deployment', () => {
+  assert.equal(resolveSessionCookieSecure({
+    isProduction: true,
+    allowInsecureHttp: true,
+    configuredValue: 'false'
+  }), false);
+  assert.equal(resolveSessionCookieSecure({
+    isProduction: true,
+    allowInsecureHttp: false,
+    configuredValue: 'false'
+  }), true);
+  assert.equal(resolveSessionCookieSecure({
+    isProduction: true,
+    allowInsecureHttp: true,
+    configuredValue: undefined
+  }), true);
+  assert.equal(resolveSessionCookieSecure({
+    isProduction: false,
+    allowInsecureHttp: false,
+    configuredValue: 'false'
+  }), false);
 });

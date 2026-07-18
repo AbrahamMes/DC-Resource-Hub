@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { validateProductionPublicUrls } from '../utils/publicUrls.js';
+import { resolveSessionCookieSecure, validateProductionPublicUrls } from '../utils/publicUrls.js';
 
 const configDirectory = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(configDirectory, '../../.env') });
@@ -24,6 +24,8 @@ function positiveNumber(name, fallback) {
 }
 
 const isProduction = process.env.NODE_ENV === 'production';
+const allowInsecureHttp = process.env.ALLOW_INSECURE_HTTP === 'true'
+  || process.env.ALLOW_INSECURE_LOCALHOST === 'true';
 const allowedSameSiteValues = new Set(['lax', 'strict', 'none']);
 const sessionCookieSameSite = (process.env.SESSION_COOKIE_SAME_SITE || 'lax').trim().toLowerCase();
 
@@ -31,7 +33,11 @@ if (!allowedSameSiteValues.has(sessionCookieSameSite)) {
   throw new Error('SESSION_COOKIE_SAME_SITE must be one of: lax, strict, none');
 }
 
-const sessionCookieSecure = isProduction || process.env.SESSION_COOKIE_SECURE === 'true';
+const sessionCookieSecure = resolveSessionCookieSecure({
+  isProduction,
+  allowInsecureHttp,
+  configuredValue: process.env.SESSION_COOKIE_SECURE
+});
 const trustProxySetting = (process.env.TRUST_PROXY || '').trim();
 const trustProxy = /^\d+$/.test(trustProxySetting)
   ? Number(trustProxySetting)
@@ -47,7 +53,7 @@ if (isProduction) {
   validateProductionPublicUrls({
     frontendUrl,
     callbackUrl,
-    allowInsecureHttp: process.env.ALLOW_INSECURE_HTTP === 'true' || process.env.ALLOW_INSECURE_LOCALHOST === 'true'
+    allowInsecureHttp
   });
 }
 
