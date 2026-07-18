@@ -14,8 +14,8 @@ A container-ready, multi-site operations dashboard for Autodesk Construction Clo
 ## Docker quick start
 
 1. Copy `backend/.env.docker.example` to `backend/.env` and provide the required secrets.
-2. Copy `backend/config/sites.example.json` to `backend/config/sites.json` and configure at least one site.
-3. Run:
+2. Copy `backend/config/sites.example.json` to `backend/config/sites.json` and configure at least one site. Note: TXE implementation is actually `backend/config/sites.txe.json`
+3. Run: (note, Windows line endings suck and can break the script. Run from Docker.)
 
    ```sh
    docker compose up --build -d
@@ -26,7 +26,7 @@ A container-ready, multi-site operations dashboard for Autodesk Construction Clo
 
 See [Docker deployment](docs/DOCKER.md) for setup, storage, OAuth, backup, restore, upgrade, and troubleshooting procedures. See [Autodesk discovery](docs/AUTODESK_DISCOVERY.md) for account/project discovery and site-configuration ID mapping.
 
-## Local development
+## Local development - For dev work
 
 Node.js 22 is recommended.
 
