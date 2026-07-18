@@ -206,6 +206,7 @@ async function getAllIssuesFromAcc({ accessToken, projectId }) {
   let offset = 0;
   const limit = 100;
   let hasMore = true;
+  const seenIssueIds = new Set();
 
   while (hasMore) {
     const response = await axios.get(url, {
@@ -222,7 +223,25 @@ async function getAllIssuesFromAcc({ accessToken, projectId }) {
 
     const pageIssues = response.data.results || response.data.data || [];
     const pagination = response.data.pagination || {};
-    allIssues = allIssues.concat(pageIssues);
+    const newIssues = pageIssues.filter((issue) => {
+      const issueId = issue?.id;
+
+      // ACC can repeat a full page when an offset is ignored or capped. Detect
+      // that lack of progress so the sync cannot request the same page forever.
+      if (issueId == null || issueId === '') {
+        return true;
+      }
+
+      const normalizedIssueId = String(issueId);
+      if (seenIssueIds.has(normalizedIssueId)) {
+        return false;
+      }
+
+      seenIssueIds.add(normalizedIssueId);
+      return true;
+    });
+
+    allIssues = allIssues.concat(newIssues);
 
     console.log(`📥 ACC issues page: ${pageIssues.length} issues, total so far: ${allIssues.length}`);
 
@@ -230,6 +249,9 @@ async function getAllIssuesFromAcc({ accessToken, projectId }) {
       Number.isFinite(Number(pagination.totalResults)) &&
       allIssues.length >= Number(pagination.totalResults)
     ) {
+      hasMore = false;
+    } else if (pageIssues.length > 0 && newIssues.length === 0) {
+      console.warn(`ACC issues pagination stopped: offset ${offset} returned no new issues`);
       hasMore = false;
     } else if (pageIssues.length < limit) {
       hasMore = false;
