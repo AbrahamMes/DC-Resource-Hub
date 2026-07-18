@@ -26,8 +26,7 @@ export default function Buildings() {
       const data = await response.json();
 
       if (data.success && data.site) {
-        const orderedBuildings = orderBuildings(data.site.buildings || []);
-        setBuildings(orderedBuildings);
+        setBuildings(data.site.buildings || []);
       } else {
         setError("Failed to load Bluebeam / Drawings areas");
       }
@@ -38,34 +37,6 @@ export default function Buildings() {
       setLoading(false);
     }
   };
-
-  function orderBuildings(buildingList) {
-    const preferredOrder = [
-      "txe1",
-      "txe2",
-      "txe3",
-      "txe5",
-      "txe6",
-      "txe7",
-      "txe10",
-      "ibos",
-      "admin"
-    ];
-
-    return [...buildingList].sort((a, b) => {
-      const aIndex = preferredOrder.indexOf(a.id);
-      const bIndex = preferredOrder.indexOf(b.id);
-
-      if (aIndex === -1 && bIndex === -1) {
-        return String(a.name || "").localeCompare(String(b.name || ""));
-      }
-
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-
-      return aIndex - bIndex;
-    });
-  }
 
   function openBluebeam(event, url) {
     event.preventDefault();

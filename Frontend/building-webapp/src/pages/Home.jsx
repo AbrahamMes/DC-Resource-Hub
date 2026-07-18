@@ -31,7 +31,7 @@ export default function Home() {
   });
 
   const currentSiteName =
-    availableSites.find((site) => site.id === currentSite)?.name || "El Paso, Texas";
+    availableSites.find((site) => site.id === currentSite)?.name || "Configured site";
 
   useEffect(() => {
     if (currentSite) {
@@ -484,7 +484,7 @@ export default function Home() {
 
       <div className="dashboard-status" style={footerStatusStyle}>
         <span>{currentSiteName}</span>
-        <span>Site: {currentSite || "TXE"}</span>
+        <span>Site: {currentSite || "Unavailable"}</span>
         <span>Last Sync: {formatDate(latestSyncDate)}</span>
         <span>Local Time: {formatTimeNow()}</span>
 

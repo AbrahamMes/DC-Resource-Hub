@@ -36,7 +36,7 @@ This checklist covers the work required to make the application portable and dep
   - Require an explicit site on operations where ambiguity could read or modify the wrong data.
   - Display a service/configuration error if the sites API fails instead of fabricating a TXE site.
 
-- [ ] **Remove remaining site-specific frontend presentation**
+- [x] **Remove remaining site-specific frontend presentation**
   - Replace or generalize `Frontend/building-webapp/src/pages/TTX1.jsx`.
   - Replace the hard-coded `Frontend/building-webapp/src/data/buildingsConfig.json` data.
   - Remove hard-coded TXE building IDs from `Buildings.jsx`.
@@ -231,7 +231,7 @@ This checklist covers the work required to make the application portable and dep
 - [x] No Windows-only path is required inside the containers.
 - [x] Neither TTX nor TXE is required for the application to start.
 - [x] A new site can be added through mounted configuration and data without rebuilding an image.
-- [ ] The frontend retrieves sites, projects, buildings, and rooms dynamically.
+- [x] The frontend retrieves sites, projects, buildings, and rooms dynamically.
 - [x] The backend rejects project IDs that are not configured for the selected site.
 - [ ] ACC discovery commands list accessible hubs, accounts, projects, companies, users, assignees, and asset categories.
 - [ ] Discovery commands support pagination and optional JSON output.
