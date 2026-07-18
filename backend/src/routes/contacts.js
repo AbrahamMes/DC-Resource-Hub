@@ -7,12 +7,12 @@ import {
   updateContacts,
   verifyContactAdminPin
 } from '../controllers/contactsController.js';
-import { siteContext } from '../middleware/siteContext.js';
+import { requireSite } from '../middleware/siteContext.js';
 
 const router = express.Router();
 
 // Apply site context to all contacts routes
-router.use(siteContext);
+router.use(requireSite);
 
 // Get contacts for current site
 router.get('/', getContacts);

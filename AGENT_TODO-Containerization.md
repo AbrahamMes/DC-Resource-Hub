@@ -29,7 +29,7 @@ This checklist covers the work required to make the application portable and dep
   - Populate the frontend project selector from the backend response.
   - Validate every client-supplied `projectId` against the configured projects for the selected site.
 
-- [ ] **Remove implicit TTX and TXE defaults**
+- [x] **Remove implicit TTX and TXE defaults**
   - Remove the silent `TTX` fallback from `backend/src/middleware/siteContext.js`.
   - Remove the `TXE` default and error fallback from `Frontend/building-webapp/src/contexts/SiteContext.jsx`.
   - Add `DEFAULT_SITE_ID`, or deliberately use the first configured site.

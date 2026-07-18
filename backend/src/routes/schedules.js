@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { getSchedules, uploadSchedule, deleteSchedule, starSchedule } from '../controllers/schedulesController.js';
-import { siteContext } from '../middleware/siteContext.js';
+import { requireSite } from '../middleware/siteContext.js';
 import { isAllowedScheduleExtension } from '../utils/scheduleFiles.js';
 import appConfig from '../config/config.js';
 import { getDataDir, resolveDataPath } from '../utils/storagePaths.js';
@@ -11,7 +11,7 @@ import { getDataDir, resolveDataPath } from '../utils/storagePaths.js';
 const router = express.Router();
 
 // Apply site context to all routes
-router.use(siteContext);
+router.use(requireSite);
 
 const dataRoot = getDataDir();
 

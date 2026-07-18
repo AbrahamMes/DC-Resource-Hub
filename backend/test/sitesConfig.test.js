@@ -10,7 +10,7 @@ import {
   getSiteConfig,
   loadSites
 } from '../src/config/sites.js';
-import { siteContext } from '../src/middleware/siteContext.js';
+import { requireSite, siteContext } from '../src/middleware/siteContext.js';
 import { resolveWithinRoot } from '../src/utils/storagePaths.js';
 
 function withSitesConfig(t, config) {
@@ -110,6 +110,17 @@ test('site context rejects a client project that is not configured for the site'
 
   assert.equal(statusCode, 400);
   assert.equal(payload.error, 'Invalid ACC project');
+});
+
+test('requireSite does not accept a session or default for ambiguous operations', () => {
+  const request = { query: {}, body: {}, session: { siteId: 'DEMO' } };
+  let statusCode;
+  const response = {
+    status(code) { statusCode = code; return this; },
+    json() {}
+  };
+  requireSite(request, response, () => assert.fail('missing explicit site reached the route'));
+  assert.equal(statusCode, 400);
 });
 
 test('storage path resolution contains mutable paths within their root', () => {
