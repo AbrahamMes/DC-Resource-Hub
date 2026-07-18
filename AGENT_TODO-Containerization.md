@@ -126,7 +126,7 @@ This checklist covers the work required to make the application portable and dep
   - Add a health check against `/health`.
   - Ensure `SIGTERM` closes the scheduler, session store, and all SQLite connections cleanly.
 
-- [ ] **Create the frontend image**
+- [x] **Create the frontend image**
   - Add `Frontend/building-webapp/Dockerfile`.
   - Build the Vite application in a build stage.
   - Serve the generated `dist` directory from a small web-server image such as Nginx or Caddy.
