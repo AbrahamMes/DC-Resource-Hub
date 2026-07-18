@@ -115,7 +115,7 @@ This checklist covers the work required to make the application portable and dep
 
 ## Priority 5: Create Docker artifacts
 
-- [ ] **Create the backend image**
+- [x] **Create the backend image**
   - Add `backend/Dockerfile`.
   - Use a pinned Node LTS base image.
   - Use `npm ci --omit=dev` for the production dependency installation.

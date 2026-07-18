@@ -15,9 +15,14 @@ import { requireSiteAccess } from './middleware/siteAccess.js';
 import { assertSingleInstanceEnvironment } from './utils/singleInstanceGuard.js';
 import SqliteSessionStore from './session/sqliteSessionStore.js';
 import { startIssueRefreshScheduler } from './services/issueRefreshScheduler.js';
-import { resolveDataPath } from './utils/storagePaths.js';
+import { getDataDir, resolveDataPath } from './utils/storagePaths.js';
+import { closeAllDatabases } from './models/databaseManager.js';
+import { getAllSiteIds } from './config/sites.js';
+import { mkdirSync } from 'node:fs';
 
 assertSingleInstanceEnvironment();
+mkdirSync(getDataDir(), { recursive: true });
+getAllSiteIds();
 
 const sessionStore = new SqliteSessionStore({
   dbPath: resolveDataPath('sessions.db', 'Session database path'),
@@ -126,7 +131,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = config.port;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 ACC Issues Backend (Multi-Site) running on http://localhost:${PORT}`);
   console.log(`📊 Frontend URL: ${config.frontendUrl}`);
   console.log(`🔑 APS Client ID configured: ${!!config.aps.clientId}`);
@@ -134,7 +139,31 @@ app.listen(PORT, () => {
   console.log(`📍 Available sites: Check /api/sites`);
 });
 
-process.once('SIGINT', () => issueRefreshScheduler.close());
-process.once('SIGTERM', () => issueRefreshScheduler.close());
+let shuttingDown = false;
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} received; shutting down gracefully`);
+  issueRefreshScheduler.close();
+
+  server.close(() => {
+    try {
+      sessionStore.close();
+      closeAllDatabases();
+      process.exit(0);
+    } catch (error) {
+      console.error('Graceful shutdown failed:', error);
+      process.exit(1);
+    }
+  });
+
+  setTimeout(() => {
+    console.error('Graceful shutdown timed out');
+    process.exit(1);
+  }, 10_000).unref();
+}
+
+process.once('SIGINT', () => shutdown('SIGINT'));
+process.once('SIGTERM', () => shutdown('SIGTERM'));
 
 export default app;

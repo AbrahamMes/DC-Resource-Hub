@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+node_modules
+data
+backups
+config/sites.json
+*.db
+*.db-shm
+*.db-wal
+*.log
+test
+coverage
+.git
+.gitignore

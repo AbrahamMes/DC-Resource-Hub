@@ -320,17 +320,6 @@ export function closeDatabase(siteId, dbType) {
   }
 }
 
-// Graceful shutdown handlers
-process.on('SIGINT', () => {
-  closeAllDatabases();
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  closeAllDatabases();
-  process.exit(0);
-});
-
 export default {
   getIssuesDb,
   getAssetsDb,
