@@ -21,6 +21,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
 COPY src ./src
 COPY scripts ./scripts
+COPY config/sites.example.json ./config/sites.example.json
 COPY setup-check.js ./setup-check.js
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

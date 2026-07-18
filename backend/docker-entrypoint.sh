@@ -19,4 +19,6 @@ if [ ! -w "${BACKUP_DIR}" ]; then
   exit 1
 fi
 
+npm run site:validate -- --config "${SITES_CONFIG_PATH}" --initialize
+
 exec "$@"

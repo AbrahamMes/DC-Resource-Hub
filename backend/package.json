@@ -10,7 +10,8 @@
     "test": "node --test",
     "setup-check": "node setup-check.js",
     "backup": "node scripts/backup.js",
-    "backup:verify": "node scripts/verify-backup.js"
+    "backup:verify": "node scripts/verify-backup.js",
+    "site:validate": "node scripts/validate-sites.js"
   },
   "dependencies": {
     "axios": "^1.7.9",

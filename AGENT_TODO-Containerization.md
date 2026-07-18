@@ -56,7 +56,7 @@ This checklist covers the work required to make the application portable and dep
   - Add `npm run acc:find-company -- --account <id> --name "Prime Controls"`.
   - Add `npm run acc:inspect-assignees -- --project <id>`.
   - Add `npm run acc:list-asset-categories -- --project <id>`.
-  - Add `npm run site:validate -- --config /app/config/sites.json`.
+  - [x] Add `npm run site:validate -- --config /app/config/sites.json`.
 
 - [ ] **Make discovery output useful for configuration**
   - Print readable tables containing names, IDs, types, account/project relationships, and other useful metadata.
@@ -177,23 +177,23 @@ This checklist covers the work required to make the application portable and dep
 ## Priority 7: Initialization and configuration validation
 
 - [ ] **Add a container startup preflight**
-  - Confirm that the site configuration exists and parses successfully.
-  - Confirm site IDs are present, valid, and unique.
-  - Confirm `DEFAULT_SITE_ID` exists when configured.
-  - Confirm every site has at least one allowed ACC project.
-  - Confirm each default project belongs to the corresponding site.
-  - Confirm database and static-data paths remain inside `DATA_DIR`.
-  - Reject Windows absolute paths in a Linux container.
+  - [x] Confirm that the site configuration exists and parses successfully.
+  - [x] Confirm site IDs are present, valid, and unique.
+  - [x] Confirm `DEFAULT_SITE_ID` exists when configured.
+  - [x] Confirm every site has at least one allowed ACC project.
+  - [x] Confirm each default project belongs to the corresponding site.
+  - [x] Confirm database and static-data paths remain inside `DATA_DIR`.
+  - [x] Reject Windows absolute paths in a Linux container.
   - Validate company, member, project, and category ID formats where practical.
-  - Confirm required directories exist or can be created and are writable.
+  - [x] Confirm required directories exist or can be created and are writable.
   - Confirm required secrets and public URLs are valid.
-  - Initialize or migrate SQLite schemas before accepting traffic.
-  - Exit with a clear, actionable error if validation fails.
+  - [x] Initialize or migrate SQLite schemas before accepting traffic.
+  - [x] Exit with a clear, actionable error if validation fails.
 
 - [ ] **Make first-run initialization explicit**
-  - Define whether empty site databases are created automatically or by a setup command.
+  - [x] Define whether empty site databases are created automatically or by a setup command.
   - Define how initial contacts, mappings, and building directories are created.
-  - Ensure initialization is idempotent and does not overwrite existing data.
+  - [x] Ensure initialization is idempotent and does not overwrite existing data.
   - Document how to add a site without rebuilding the image.
 
 ## Priority 8: Backups and lifecycle behavior
