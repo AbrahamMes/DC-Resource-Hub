@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync } from 'fs';
 import { readFile } from 'fs/promises';
+import path from 'node:path';
 import config from '../config/config.js';
 import { atomicWriteFile } from '../utils/atomicFile.js';
 import { resolveDataPath } from '../utils/storagePaths.js';
