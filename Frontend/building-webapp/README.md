@@ -1,5 +1,28 @@
 # React + Vite
 
+## Start the Application Locally
+
+Open two PowerShell terminals from the repository root and run one service in
+each terminal.
+
+### Backend
+
+```powershell
+cd .\backend
+npm.cmd run dev
+```
+
+The backend runs at http://localhost:3001.
+
+### Frontend
+
+```powershell
+cd .\Frontend\building-webapp
+npm.cmd run dev
+```
+
+The frontend runs at http://localhost:5173.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
