@@ -15,6 +15,7 @@ services:
       WEB_CONCURRENCY: "1"
       TRUST_PROXY: "1"
       FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      ADDITIONAL_FRONTEND_URLS: http://localhost:8080,http://127.0.0.1:8080
       APS_CALLBACK_URL: ${PUBLIC_URL:-http://localhost:8080}/api/auth/callback
     volumes:
       - app-data:/app/data

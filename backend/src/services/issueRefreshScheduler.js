@@ -1,6 +1,7 @@
 import { getAllSiteIds, getSiteConfig } from '../config/sites.js';
 import { getIssuesDb } from '../models/databaseManager.js';
 import { syncIssues } from '../controllers/issuesController.js';
+import { syncAssetsForProject } from '../controllers/assetsController.js';
 import { getValidAccessToken, tokenErrorMessage } from './autodeskTokenService.js';
 
 function saveSession(store, sid, sessionData) {
@@ -9,12 +10,12 @@ function saveSession(store, sid, sessionData) {
   );
 }
 
-function invokeIssueSync({ siteId, siteConfig, sessionData }) {
+function invokeIssueSync({ siteId, siteConfig, sessionData, projectId }) {
   return new Promise((resolve, reject) => {
     let statusCode = 200;
     const req = {
       session: sessionData,
-      body: {},
+      body: { projectId },
       query: {},
       siteId,
       siteConfig
@@ -76,7 +77,9 @@ export function startIssueRefreshScheduler({
         const error = new Error('Interactive Autodesk login required; no renewable saved authorization is available');
         for (const siteId of getAllSiteIds()) {
           const siteConfig = getSiteConfig(siteId);
-          recordSchedulerFailure(siteId, siteConfig.accProjectId, error);
+          for (const project of siteConfig.accProjects) {
+            recordSchedulerFailure(siteId, project.id, error);
+          }
         }
         console.warn(`Hourly ACC issue refresh failed: ${error.message}`);
         return;
@@ -94,22 +97,42 @@ export function startIssueRefreshScheduler({
 
       for (const siteId of getAllSiteIds()) {
         const siteConfig = getSiteConfig(siteId);
-        const result = await invokeIssueSync({ siteId, siteConfig, sessionData });
-        if (!result.payload?.success) {
-          const error = new Error(result.payload?.error || `ACC sync failed with HTTP ${result.statusCode}`);
-          recordSchedulerFailure(siteId, siteConfig.accProjectId, error);
-          console.error(`Hourly ACC issue refresh failed for ${siteId}:`, error.message);
-          continue;
-        }
+        for (const project of siteConfig.accProjects) {
+          const result = await invokeIssueSync({
+            siteId,
+            siteConfig,
+            sessionData,
+            projectId: project.id
+          });
+          if (!result.payload?.success) {
+            const error = new Error(result.payload?.error || `ACC sync failed with HTTP ${result.statusCode}`);
+            recordSchedulerFailure(siteId, project.id, error);
+            console.error(`Hourly ACC issue refresh failed for ${siteId}/${project.name}:`, error.message);
+          } else {
+            markHourlySuccess(siteId, project.id);
+            console.log(`Hourly ACC issue refresh completed for ${siteId}/${project.name}: ${result.payload.count} issues`);
+          }
 
-        markHourlySuccess(siteId, siteConfig.accProjectId);
-        console.log(`Hourly ACC issue refresh completed for ${siteId}: ${result.payload.count} issues`);
+          try {
+            const assetResult = await syncAssetsForProject({
+              accessToken: sessionData.accessToken,
+              siteId,
+              siteConfig,
+              projectId: project.id
+            });
+            console.log(`Hourly ACC asset refresh completed for ${siteId}/${project.name}: ${assetResult.count} assets`);
+          } catch (error) {
+            console.error(`Hourly ACC asset refresh failed for ${siteId}/${project.name}:`, tokenErrorMessage(error));
+          }
+        }
       }
     } catch (error) {
       console.error('Hourly ACC issue refresh failed:', tokenErrorMessage(error));
       for (const siteId of getAllSiteIds()) {
         const siteConfig = getSiteConfig(siteId);
-        recordSchedulerFailure(siteId, siteConfig.accProjectId, error);
+        for (const project of siteConfig.accProjects) {
+          recordSchedulerFailure(siteId, project.id, error);
+        }
       }
     } finally {
       running = false;
@@ -121,7 +144,7 @@ export function startIssueRefreshScheduler({
   startupTimer.unref();
   intervalTimer.unref();
 
-  console.log(`ACC issue refresh scheduled every ${Math.round(intervalMs / 60000)} minutes`);
+  console.log(`ACC issue and asset refresh scheduled every ${Math.round(intervalMs / 60000)} minutes`);
 
   return {
     runNow: refreshAllSites,

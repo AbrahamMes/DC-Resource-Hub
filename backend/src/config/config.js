@@ -48,6 +48,10 @@ if (sessionCookieSameSite === 'none' && !sessionCookieSecure) {
 }
 
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const additionalFrontendUrls = (process.env.ADDITIONAL_FRONTEND_URLS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
 const callbackUrl = process.env.APS_CALLBACK_URL || 'http://localhost:3001/api/auth/callback';
 if (isProduction) {
   validateProductionPublicUrls({
@@ -70,6 +74,7 @@ export const config = {
   siteAccessMaxAttempts: positiveNumber('SITE_ACCESS_MAX_ATTEMPTS', 5),
   siteAccessAttemptWindowMs: positiveNumber('SITE_ACCESS_LOCKOUT_MINUTES', 15) * 60 * 1000,
   frontendUrl,
+  additionalFrontendUrls,
   trustProxy,
   sessionCookie: {
     secure: sessionCookieSecure,

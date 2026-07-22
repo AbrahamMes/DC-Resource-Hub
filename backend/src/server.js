@@ -3,6 +3,7 @@ import cors from 'cors';
 import session from 'express-session';
 import config from './config/config.js';
 import authRoutes from './routes/auth.js';
+import { callback as autodeskCallback } from './controllers/authController.js';
 import issuesRoutes from './routes/issues.js';
 import assetsRoutes from './routes/assets.js';
 import commissioningRoutes from './routes/commissioning.js';
@@ -37,6 +38,10 @@ const issueRefreshScheduler = startIssueRefreshScheduler({
 });
 
 const app = express();
+const allowedFrontendOrigins = new Set([
+  config.frontendUrl,
+  ...config.additionalFrontendUrls
+]);
 
 // Render and most production hosts terminate HTTPS at a reverse proxy. Express
 // must trust that proxy before it can recognize the original HTTPS request and
@@ -56,7 +61,7 @@ app.use((req, res, next) => {
 });
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin === config.frontendUrl) return callback(null, true);
+    if (!origin || allowedFrontendOrigins.has(origin)) return callback(null, true);
 
     if (process.env.NODE_ENV !== 'production') {
       try {
@@ -93,6 +98,10 @@ app.use(session({
 
 // Public routes used before the website has been unlocked.
 app.use('/api/access', accessRoutes);
+// Autodesk returns here in a top-level browser navigation. The callback must
+// remain reachable even when the browser does not return the PIN-authorized
+// session cookie; the handler establishes/saves the OAuth session itself.
+app.get('/api/auth/callback', autodeskCallback);
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -106,8 +115,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// All dashboard data, files, and Autodesk authentication routes require the
-// front-door website PIN. Administrative actions retain their separate PIN.
+// All dashboard data, files, and Autodesk authentication routes other than the
+// OAuth callback require the front-door website PIN. Administrative actions
+// retain their separate PIN.
 app.use('/api', requireSiteAccess);
 
 // Private routes
