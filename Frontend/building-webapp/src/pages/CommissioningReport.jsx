@@ -38,7 +38,7 @@ export default function CommissioningReport() {
     if (activeTab === 'log') {
       fetchEntriesByDate();
     }
-  }, [activeTab]);
+  }, [activeTab, currentSite]);
 
   // Load assets when location changes
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function CommissioningReport() {
     } else {
       setAvailableAssets([]);
     }
-  }, [selectedLocation]);
+  }, [selectedLocation, currentSite]);
 
   const fetchLocations = async () => {
     try {
@@ -354,7 +354,7 @@ export default function CommissioningReport() {
                   ) : filteredAssets.length === 0 ? (
                     <p style={{ color: '#666' }}>
                       {availableAssets.length === 0
-                        ? 'No Prime Controls assets found for this location'
+                        ? 'No synced assets found for this location'
                         : 'No assets match your search'}
                     </p>
                   ) : (

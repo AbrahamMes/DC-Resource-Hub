@@ -199,7 +199,50 @@ function formatLocalIssue(issue, primeControlsIds) {
   };
 }
 
-export async function getAllIssuesFromAcc({ accessToken, projectId, get = axios.get }) {
+const RETRYABLE_ACC_STATUSES = new Set([429, 500, 502, 503, 504]);
+
+function retryDelayMs(error, attempt) {
+  const retryAfter = Number(error.response?.headers?.['retry-after']);
+
+  if (Number.isFinite(retryAfter) && retryAfter >= 0) {
+    return retryAfter * 1000;
+  }
+
+  // 1, 2, 4, then 8 seconds, plus a small jitter to avoid synchronized retries.
+  return (1000 * (2 ** attempt)) + Math.floor(Math.random() * 250);
+}
+
+async function getAccPage({ get, url, options, offset, sleep, maxRetries }) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await get(url, options);
+    } catch (error) {
+      const status = error.response?.status;
+      const isNetworkError = !error.response;
+      const retryable = isNetworkError || RETRYABLE_ACC_STATUSES.has(status);
+
+      if (!retryable || attempt >= maxRetries) {
+        throw error;
+      }
+
+      const delayMs = retryDelayMs(error, attempt);
+      console.warn(
+        `ACC issues page at offset ${offset} failed` +
+        `${status ? ` with HTTP ${status}` : ''}; retrying ` +
+        `${attempt + 1}/${maxRetries} in ${delayMs}ms`
+      );
+      await sleep(delayMs);
+    }
+  }
+}
+
+export async function getAllIssuesFromAcc({
+  accessToken,
+  projectId,
+  get = axios.get,
+  sleep = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
+  maxRetries = 4
+}) {
   const url = `${config.acc.issuesApiUrl}/projects/${projectId}/issues`;
 
   let allIssues = [];
@@ -209,7 +252,7 @@ export async function getAllIssuesFromAcc({ accessToken, projectId, get = axios.
   let totalResults = null;
 
   while (totalResults === null || offset < totalResults) {
-    const response = await get(url, {
+    const requestOptions = {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
@@ -219,6 +262,14 @@ export async function getAllIssuesFromAcc({ accessToken, projectId, get = axios.
         limit,
         offset
       }
+    };
+    const response = await getAccPage({
+      get,
+      url,
+      options: requestOptions,
+      offset,
+      sleep,
+      maxRetries
     });
 
     const pageIssues = response.data.results || response.data.data || [];
