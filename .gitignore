@@ -3,9 +3,23 @@ node_modules/
 
 # Environment variables
 .env
-.env.bak
-.env.local
-.env.production
+.env.*
+!.env.example
+!.env.*.example
+
+# Private keys and credential exports
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+credentials.*.json
+service-account*.json
+service_account*.json
+secrets.json
+secrets.*.json
 
 # Deployment-specific site configuration (copy from sites.example.json)
 backend/config/sites.json
