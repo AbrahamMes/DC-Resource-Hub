@@ -1,382 +1,194 @@
 /**
- * Multi-Site Configuration
- *
- * This file defines all site-specific settings for the ACC Issue Display application.
- * Each site has its own ACC project, databases, static assets, and building hierarchy.
+ * Site configuration is deployment data, not application source code.
+ * Set SITES_CONFIG_PATH to a mounted JSON file in production.
  */
 
-const sites = {
-  TTX: {
-    id: 'TTX',
-    name: 'Temple, TX',
-    fullName: 'Temple Data Center',
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-    // ACC Project Configuration
-    accProjectId: 'b38e25ea-eca5-4a70-9f0b-85eeb399056f',
+const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+const defaultConfigPath = path.resolve(moduleDirectory, '../../config/sites.json');
+const requiredDatabaseKeys = ['issues', 'assets', 'commissioning'];
+const pathFields = ['excelFile', 'contacts', 'scheduleImage', 'schedulePdf', 'buildingsDir'];
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const externalIdPattern = /^[A-Za-z0-9._:-]{1,128}$/;
 
-    // No issue filtering for TTX
-    accAssignedToId: null,
-    accAssignedToType: null,
-    accIncludeAssignedToMembers: false,
-    clearIssuesBeforeSync: true,
+let cachedSites;
+let cachedConfigPath;
 
-    primeControlsAssignedToIds: [],
-
-    // Database Paths (relative to backend/data/)
-    databases: {
-      issues: 'TTX/issues.db',
-      assets: 'TTX/assets.db',
-      commissioning: 'TTX/commissioning.db'
-    },
-
-    // Static Asset Paths
-    staticAssets: {
-      excelFile: 'TTX/Asset List_Rev10.xlsx',
-      contacts: 'TTX/contacts.json',
-      scheduleImage: 'TTX/schedules/schedule.jpg',
-      schedulePdf: 'TTX/schedules/6-week.pdf',
-      buildingsDir: 'TTX/buildings/'
-    },
-
-    // Buildings Hierarchy
-    buildings: [
-      {
-        id: 'ttx1',
-        name: 'TTX1',
-        description: 'Primary Data Hall',
-        rooms: [
-          {
-            id: 'dha',
-            name: 'DHA',
-            fullName: 'Data Hall A',
-            images: {
-              default: 'TTX1_DHA.jpg'
-            },
-            markers: [
-              {
-                id: 'zone-1a1',
-                x: 0.25,
-                y: 0.35,
-                zone: '1A1',
-                label: 'Zone 1A1',
-                alwaysShow: false
-              },
-              {
-                id: 'zone-1a2',
-                x: 0.75,
-                y: 0.35,
-                zone: '1A2',
-                label: 'Zone 1A2',
-                alwaysShow: false
-              }
-            ]
-          },
-          {
-            id: 'dhb',
-            name: 'DHB',
-            fullName: 'Data Hall B',
-            images: {
-              default: 'TTX1_DHB.jpg'
-            }
-          },
-          {
-            id: 'dhc',
-            name: 'DHC',
-            fullName: 'Data Hall C',
-            images: {
-              default: 'TTX1_DHC.jpg'
-            }
-          },
-          {
-            id: 'dhd',
-            name: 'DHD',
-            fullName: 'Data Hall D',
-            images: {
-              default: 'TTX1_DHD.jpg'
-            }
-          },
-          {
-            id: 'ns1',
-            name: 'NS1',
-            fullName: 'Network Space 1',
-            images: {
-              default: 'TTX1_NS1.jpg'
-            }
-          },
-          {
-            id: 'ns2',
-            name: 'NS2',
-            fullName: 'Network Space 2',
-            images: {
-              default: 'TTX1_NS2.jpg'
-            }
-          }
-        ]
-      },
-      {
-        id: 'ttx2',
-        name: 'TTX2',
-        description: 'Secondary Data Hall',
-        rooms: [
-          {
-            id: 'dha',
-            name: 'DHA',
-            fullName: 'Data Hall A',
-            images: {
-              default: 'TTX2_DHA.jpg'
-            }
-          },
-          {
-            id: 'dhb',
-            name: 'DHB',
-            fullName: 'Data Hall B',
-            images: {
-              default: 'TTX2_DHB.jpg'
-            }
-          },
-          {
-            id: 'dhc',
-            name: 'DHC',
-            fullName: 'Data Hall C',
-            images: {
-              default: 'TTX2_DHC.jpg'
-            }
-          },
-          {
-            id: 'dhd',
-            name: 'DHD',
-            fullName: 'Data Hall D',
-            images: {
-              default: 'TTX2_DHD.jpg'
-            }
-          },
-          {
-            id: 'ns1',
-            name: 'NS1',
-            fullName: 'Network Space 1',
-            images: {
-              default: 'TTX2_NS1.jpg'
-            }
-          },
-          {
-            id: 'ns2',
-            name: 'NS2',
-            fullName: 'Network Space 2',
-            images: {
-              default: 'TTX2_NS2.jpg'
-            }
-          }
-        ]
-      },
-      {
-        id: 'ttx3',
-        name: 'TTX3',
-        description: 'Tertiary Data Hall',
-        rooms: []
-      }
-    ]
-  },
-
-  TXE: {
-    id: 'TXE',
-    name: 'El Paso, Texas',
-    fullName: 'El Paso Data Center',
-
-    // ACC Project Configuration
-    accProjectId: 'fe0c7a6d-1115-42d7-897e-206f80b63edb',
-    accProjects: [
-      {
-        id: 'fe0c7a6d-1115-42d7-897e-206f80b63edb',
-        key: 'hensel-phelps',
-        name: 'TXE - Hensel Phelps (NB.TypeF2.0)'
-      },
-      {
-        id: 'a0482399-f629-4aeb-9245-4da64cc2ac1c',
-        key: 'je-dunn',
-        name: 'TXE - JE Dunn (NB.TypeF2.0)'
-      }
-    ],
-
-    // ACC Assets category from this ACC URL:
-    // https://acc.autodesk.com/build/assets/projects/fe0c7a6d-1115-42d7-897e-206f80b63edb/assets?categoryId=10
-    accAssetCategoryId: '10',
-    accAssetCategoryName: 'Controls',
-
-    // Do not use ACC company filter. It returned 0 from the public Issues API.
-    accAssignedToId: null,
-    accAssignedToType: null,
-    accIncludeAssignedToMembers: false,
-
-    // Clear old local issues before saving the latest Prime Controls filtered issue list.
-    clearIssuesBeforeSync: true,
-
-    // Prime Controls assigned-to IDs discovered from ACC Prime Controls filtered issues.
-    primeControlsAssignedToIds: [
-      // TXE Prime Controls company ID (for issues assigned directly to the company).
-      '595923917',
-      // Current TXE Prime Controls member IDs.
-      '35C2BJAJKUECSQGN',
-      'DJ52TVFQRUYFNK43'
-    ],
-
-    // Database Paths (relative to backend/data/)
-    databases: {
-      issues: 'TXE/issues.db',
-      assets: 'TXE/assets.db',
-      commissioning: 'TXE/commissioning.db'
-    },
-
-    // Static Asset Paths
-    staticAssets: {
-      excelFile: 'C:\\Users\\Prime\\OneDrive - Prime Controls\\Meta TXE - 2566006 - Meta TXE Phase 1 HP\\Documentation\\Asset List\\TXE_Asset List_Rev10_TXE.xlsx',
-      contacts: 'TXE/contacts.json',
-      scheduleImage: 'TXE/schedules/schedule.jpg',
-      schedulePdf: 'TXE/schedules/6-week.pdf',
-      buildingsDir: 'TXE/buildings/'
-    },
-
-    // Buildings / Bluebeam / Drawings Areas
-    buildings: [
-      {
-        id: 'txe1',
-        name: 'TXE1',
-        description: 'Primary Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/200-116-966/editor',
-        rooms: []
-      },
-      {
-        id: 'txe2',
-        name: 'TXE2',
-        description: 'Secondary Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/647-792-551/editor',
-        rooms: []
-      },
-      {
-        id: 'txe3',
-        name: 'TXE3',
-        description: 'Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/767-176-208/editor',
-        rooms: []
-      },
-      {
-        id: 'txe5',
-        name: 'TXE5',
-        description: 'Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/190-437-699/editor',
-        rooms: []
-      },
-      {
-        id: 'txe6',
-        name: 'TXE6',
-        description: 'Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/319-599-320/editor',
-        rooms: []
-      },
-      {
-        id: 'txe7',
-        name: 'TXE7',
-        description: 'Data Hall',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/300-225-768/editor',
-        rooms: []
-      },
-      {
-        id: 'txe10',
-        name: 'TXE10',
-        description: 'Network Building',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/492-134-271/editor',
-        rooms: []
-      },
-      {
-        id: 'ibos',
-        name: 'TXE-IBOS',
-        description: 'Warehouse',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/711-043-879/editor',
-        rooms: []
-      },
-      {
-        id: 'admin',
-        name: 'TXE-ADMIN',
-        description: 'ADMIN Building',
-        bluebeamUrl: 'https://app.bluebeam.com/sessions/555-957-540/editor',
-        rooms: []
-      }
-    ]
+function assertNonEmptyString(value, field) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`${field} must be a non-empty string`);
   }
-};
+}
 
-/**
- * Get configuration for a specific site
- * @param {string} siteId - Site identifier (TTX, TXE, etc.)
- * @returns {Object} Site configuration object
- * @throws {Error} If site ID is invalid
- */
+function assertRelativeDataPath(value, field) {
+  if (value == null || value === '') return;
+  assertNonEmptyString(value, field);
+
+  const normalized = value.replaceAll('\\', '/');
+  if (path.posix.isAbsolute(normalized) || path.win32.isAbsolute(value)) {
+    throw new Error(`${field} must be relative to DATA_DIR, not an absolute path`);
+  }
+  if (normalized.split('/').includes('..')) {
+    throw new Error(`${field} must not escape DATA_DIR`);
+  }
+}
+
+function validateSite(site, index, ids) {
+  const prefix = `sites[${index}]`;
+  if (!site || typeof site !== 'object' || Array.isArray(site)) {
+    throw new Error(`${prefix} must be an object`);
+  }
+
+  assertNonEmptyString(site.id, `${prefix}.id`);
+  if (!/^[A-Za-z0-9_-]+$/.test(site.id)) {
+    throw new Error(`${prefix}.id may contain only letters, numbers, underscores, and hyphens`);
+  }
+  const normalizedId = site.id.toUpperCase();
+  if (ids.has(normalizedId)) throw new Error(`Duplicate site ID: ${site.id}`);
+  ids.add(normalizedId);
+
+  assertNonEmptyString(site.name, `${prefix}.name`);
+  assertNonEmptyString(site.fullName, `${prefix}.fullName`);
+
+  if (!Array.isArray(site.accProjects) || site.accProjects.length === 0) {
+    throw new Error(`${prefix}.accProjects must contain at least one project`);
+  }
+  const projectIds = new Set();
+  for (const [projectIndex, project] of site.accProjects.entries()) {
+    assertNonEmptyString(project?.id, `${prefix}.accProjects[${projectIndex}].id`);
+    assertNonEmptyString(project?.name, `${prefix}.accProjects[${projectIndex}].name`);
+    if (!uuidPattern.test(project.id)) {
+      throw new Error(`${prefix}.accProjects[${projectIndex}].id must be an Autodesk project UUID`);
+    }
+    if (projectIds.has(project.id)) throw new Error(`Duplicate project ID in site ${site.id}: ${project.id}`);
+    projectIds.add(project.id);
+  }
+
+  const defaultProjectId = site.defaultAccProjectId || site.accProjectId;
+  assertNonEmptyString(defaultProjectId, `${prefix}.defaultAccProjectId`);
+  if (!projectIds.has(defaultProjectId)) {
+    throw new Error(`${prefix}.defaultAccProjectId must reference one of the site's accProjects`);
+  }
+
+  if (!site.databases || typeof site.databases !== 'object') {
+    throw new Error(`${prefix}.databases must be an object`);
+  }
+  for (const key of requiredDatabaseKeys) {
+    assertNonEmptyString(site.databases[key], `${prefix}.databases.${key}`);
+    assertRelativeDataPath(site.databases[key], `${prefix}.databases.${key}`);
+  }
+  for (const key of pathFields) {
+    assertRelativeDataPath(site.staticAssets?.[key], `${prefix}.staticAssets.${key}`);
+  }
+
+  if (site.buildings != null && !Array.isArray(site.buildings)) {
+    throw new Error(`${prefix}.buildings must be an array`);
+  }
+  if (site.accAssetCategoryId != null && !externalIdPattern.test(String(site.accAssetCategoryId))) {
+    throw new Error(`${prefix}.accAssetCategoryId has an invalid format`);
+  }
+  if (site.primeControlsAssignedToIds != null) {
+    if (!Array.isArray(site.primeControlsAssignedToIds) || site.primeControlsAssignedToIds.some((id) => !externalIdPattern.test(String(id)))) {
+      throw new Error(`${prefix}.primeControlsAssignedToIds must contain valid Autodesk company or member IDs`);
+    }
+  }
+
+  return {
+    ...site,
+    id: normalizedId,
+    defaultAccProjectId: defaultProjectId,
+    // Temporary compatibility alias while callers migrate to defaultAccProjectId.
+    accProjectId: defaultProjectId,
+    buildings: site.buildings || [],
+    staticAssets: site.staticAssets || {}
+  };
+}
+
+export function getSitesConfigPath() {
+  return path.resolve(process.env.SITES_CONFIG_PATH || defaultConfigPath);
+}
+
+export function loadSites() {
+  const configPath = getSitesConfigPath();
+  if (cachedSites && cachedConfigPath === configPath) return cachedSites;
+
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (error) {
+    throw new Error(`Unable to load site configuration at ${configPath}: ${error.message}`);
+  }
+
+  const siteList = Array.isArray(parsed) ? parsed : parsed?.sites;
+  if (!Array.isArray(siteList) || siteList.length === 0) {
+    throw new Error(`Site configuration at ${configPath} must contain a non-empty "sites" array`);
+  }
+
+  const ids = new Set();
+  cachedSites = Object.fromEntries(siteList.map((site, index) => {
+    const validated = validateSite(site, index, ids);
+    return [validated.id, validated];
+  }));
+  cachedConfigPath = configPath;
+  return cachedSites;
+}
+
 export function getSiteConfig(siteId) {
-  if (!siteId) {
-    throw new Error('Site ID is required');
-  }
-
-  const upperSiteId = siteId.toUpperCase();
-  const siteConfig = sites[upperSiteId];
-
+  if (!siteId) throw new Error('Site ID is required');
+  const sites = loadSites();
+  const siteConfig = sites[String(siteId).toUpperCase()];
   if (!siteConfig) {
     throw new Error(`Invalid site ID: ${siteId}. Available sites: ${Object.keys(sites).join(', ')}`);
   }
-
   return siteConfig;
 }
 
-/**
- * Validate if a site ID exists
- * @param {string} siteId - Site identifier to validate
- * @returns {boolean} True if site exists
- */
 export function isValidSite(siteId) {
-  if (!siteId) return false;
-  return sites.hasOwnProperty(siteId.toUpperCase());
+  return Boolean(siteId) && Object.hasOwn(loadSites(), String(siteId).toUpperCase());
 }
 
-/**
- * Get list of all available site IDs
- * @returns {Array<string>} Array of site IDs
- */
 export function getAllSiteIds() {
-  return Object.keys(sites);
+  return Object.keys(loadSites());
 }
 
-/**
- * Get list of all sites with basic info (for API responses)
- * @returns {Array<Object>} Array of site objects with id, name, and fullName
- */
+export function getDefaultSiteId() {
+  const sites = loadSites();
+  const configuredDefault = process.env.DEFAULT_SITE_ID?.toUpperCase();
+  if (configuredDefault && !Object.hasOwn(sites, configuredDefault)) {
+    throw new Error(`DEFAULT_SITE_ID '${process.env.DEFAULT_SITE_ID}' is not present in the site configuration`);
+  }
+  return configuredDefault || Object.keys(sites)[0];
+}
+
 export function getAllSites() {
-  return Object.values(sites).map(site => ({
-    id: site.id,
-    name: site.name,
-    fullName: site.fullName
+  return Object.values(loadSites()).map(({ id, name, fullName, description, accProjects, defaultAccProjectId }) => ({
+    id,
+    name,
+    fullName,
+    description,
+    accProjects,
+    defaultAccProjectId
   }));
 }
 
-/**
- * Get building configuration for a site
- * @param {string} siteId - Site identifier
- * @param {string} buildingId - Building identifier
- * @returns {Object|null} Building configuration or null if not found
- */
 export function getBuildingConfig(siteId, buildingId) {
-  const siteConfig = getSiteConfig(siteId);
-  return siteConfig.buildings.find(b => b.id === buildingId) || null;
+  return getSiteConfig(siteId).buildings.find((building) => building.id === buildingId) || null;
 }
 
-/**
- * Get room configuration for a building
- * @param {string} siteId - Site identifier
- * @param {string} buildingId - Building identifier
- * @param {string} roomId - Room identifier
- * @returns {Object|null} Room configuration or null if not found
- */
 export function getRoomConfig(siteId, buildingId, roomId) {
-  const building = getBuildingConfig(siteId, buildingId);
-  if (!building) return null;
-  return building.rooms.find(r => r.id === roomId) || null;
+  return getBuildingConfig(siteId, buildingId)?.rooms?.find((room) => room.id === roomId) || null;
 }
 
-export default sites;
+export function clearSitesCache() {
+  cachedSites = undefined;
+  cachedConfigPath = undefined;
+}
+
+export default new Proxy({}, {
+  ownKeys: () => Reflect.ownKeys(loadSites()),
+  getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
+  get: (_target, property) => loadSites()[property]
+});

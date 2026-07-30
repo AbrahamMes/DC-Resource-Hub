@@ -1,12 +1,9 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync } from 'fs';
 import { readFile } from 'fs/promises';
+import path from 'node:path';
 import config from '../config/config.js';
 import { atomicWriteFile } from '../utils/atomicFile.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath } from '../utils/storagePaths.js';
 
 const FALLBACK_CONTACTS = [
   {
@@ -32,11 +29,7 @@ const FALLBACK_CONTACTS = [
 function resolveContactsPath(req) {
   const contactsPath = req.siteConfig.staticAssets.contacts;
 
-  if (path.isAbsolute(contactsPath)) {
-    return contactsPath;
-  }
-
-  return path.join(__dirname, '../../data', contactsPath);
+  return resolveDataPath(contactsPath, `${req.siteId} contacts path`);
 }
 
 function createContactId() {

@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      DATA_DIR: /app/data
+      SITES_CONFIG_PATH: /app/config/sites.json
+      BACKUP_DIR: /app/backups
+      DEFAULT_SITE_ID: TXE
+      WEB_CONCURRENCY: "1"
+      TRUST_PROXY: "1"
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      ADDITIONAL_FRONTEND_URLS: http://localhost:8080,http://127.0.0.1:8080
+      APS_CALLBACK_URL: ${PUBLIC_URL:-http://localhost:8080}/api/auth/callback
+    volumes:
+      - app-data:/app/data
+      - ./backend/data/TXE:/app/data/TXE
+      - app-backups:/app/backups
+      - ./backend/config/sites.txe.json:/app/config/sites.json:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend/building-webapp
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  app-data:
+  app-backups:

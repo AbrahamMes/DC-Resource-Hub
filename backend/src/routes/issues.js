@@ -8,12 +8,12 @@ import {
   deleteIssue
 } from '../controllers/issuesController.js';
 import { requireAuth } from '../middleware/auth.js';
-import { siteContext } from '../middleware/siteContext.js';
+import { requireSite } from '../middleware/siteContext.js';
 
 const router = express.Router();
 
 // Apply site context to all issue routes
-router.use(siteContext);
+router.use(requireSite);
 
 // Get issues from local database
 router.get('/', getLocalIssues);

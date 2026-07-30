@@ -671,6 +671,41 @@ export const syncAssetsWithProgress = async (req, res) => {
   }
 };
 
+export async function syncAssetsForProject({
+  accessToken,
+  siteId,
+  siteConfig,
+  projectId,
+  categoryId = siteConfig.accAssetCategoryId
+}) {
+  if (!categoryId) {
+    throw new Error(
+      'Controller category ID is not configured. Set accAssetCategoryId for this site.'
+    );
+  }
+
+  const { allAssets, requestCount } = await fetchAllAccAssets({
+    accessToken,
+    projectId,
+    categoryId
+  });
+  const enrichedAssets = await enrichAssetsWithMetadata({
+    accessToken,
+    projectId,
+    assets: allAssets
+  });
+  const syncedAt = new Date().toISOString();
+
+  saveAssetsToDatabase({
+    assetsDb: getAssetsDb(siteId),
+    allAssets: enrichedAssets,
+    projectId,
+    syncedAt
+  });
+
+  return { count: allAssets.length, requestCount, categoryId, syncedAt };
+}
+
 // Standard JSON sync for all assets in the configured
 // ACC Controller category.
 export const syncAssets = async (req, res) => {

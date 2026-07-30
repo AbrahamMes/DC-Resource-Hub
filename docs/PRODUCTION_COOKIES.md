@@ -17,7 +17,7 @@ SESSION_COOKIE_SECURE=true
 SESSION_COOKIE_SAME_SITE=lax
 ```
 
-Local HTTP development uses `SESSION_COOKIE_SECURE=false`. Production ignores an attempt to disable secure cookies because `NODE_ENV=production` always enables them.
+Local HTTP development uses `SESSION_COOKIE_SECURE=false`. A controlled production-mode HTTP deployment must explicitly set both `ALLOW_INSECURE_HTTP=true` and `SESSION_COOKIE_SECURE=false`; otherwise production uses secure cookies.
 
 Use `SESSION_COOKIE_SAME_SITE=none` only if the frontend and backend are truly cross-site rather than same-site subdomains. Browsers require `SameSite=None` cookies to also be `Secure`, and the application rejects an insecure combination at startup.
 

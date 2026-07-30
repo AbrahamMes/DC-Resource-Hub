@@ -1,12 +1,8 @@
 import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath } from '../utils/storagePaths.js';
 
 // Initialize SQLite database for assets
-const dbPath = path.join(__dirname, '../../data/assets.db');
+const dbPath = resolveDataPath('assets.db', 'Legacy assets database path');
 const assetsDb = new Database(dbPath);
 
 // Create assets table if it doesn't exist

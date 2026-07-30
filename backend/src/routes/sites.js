@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllSites, getSiteConfig } from '../config/sites.js';
+import { getAllSites, getDefaultSiteId, getSiteConfig } from '../config/sites.js';
 
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.get('/', (req, res) => {
 
     res.json({
       success: true,
+      defaultSiteId: getDefaultSiteId(),
       sites
     });
   } catch (error) {
@@ -35,6 +36,9 @@ router.get('/:siteId', (req, res) => {
         id: siteConfig.id,
         name: siteConfig.name,
         fullName: siteConfig.fullName,
+        description: siteConfig.description,
+        accProjects: siteConfig.accProjects,
+        defaultAccProjectId: siteConfig.defaultAccProjectId,
         buildings: siteConfig.buildings,
         staticAssets: siteConfig.staticAssets
       }

@@ -7,12 +7,12 @@ import {
   getEntriesByDate,
   deleteEntry
 } from '../controllers/commissioningController.js';
-import { siteContext } from '../middleware/siteContext.js';
+import { requireSite } from '../middleware/siteContext.js';
 
 const router = express.Router();
 
 // Apply site context to all routes
-router.use(siteContext);
+router.use(requireSite);
 
 // Get all locations
 router.get('/locations', getLocations);

@@ -1,0 +1,57 @@
+{
+  "sites": [
+    {
+      "id": "TXE",
+      "name": "El Paso, Texas",
+      "fullName": "El Paso Data Center",
+      "description": "El Paso data center resources",
+      "defaultAccProjectId": "fe0c7a6d-1115-42d7-897e-206f80b63edb",
+      "accProjects": [
+        {
+          "id": "fe0c7a6d-1115-42d7-897e-206f80b63edb",
+          "key": "hensel-phelps",
+          "name": "TXE - Hensel Phelps (NB.TypeF2.0)"
+        },
+        {
+          "id": "a0482399-f629-4aeb-9245-4da64cc2ac1c",
+          "key": "je-dunn",
+          "name": "TXE - JE Dunn (NB.TypeF2.0)"
+        }
+      ],
+      "accAssetCategoryId": "10",
+      "accAssetCategoryName": "Controls",
+      "accAssignedToId": null,
+      "accAssignedToType": null,
+      "accIncludeAssignedToMembers": false,
+      "clearIssuesBeforeSync": true,
+      "primeControlsAssignedToIds": [
+        "595923917",
+        "35C2BJAJKUECSQGN",
+        "DJ52TVFQRUYFNK43"
+      ],
+      "databases": {
+        "issues": "TXE/issues.db",
+        "assets": "TXE/assets.db",
+        "commissioning": "TXE/commissioning.db"
+      },
+      "staticAssets": {
+        "excelFile": "TXE/imports/TXE_Asset List_Rev10_TXE.xlsx",
+        "contacts": "TXE/contacts.json",
+        "scheduleImage": "TXE/schedules/schedule.jpg",
+        "schedulePdf": "TXE/schedules/6-week.pdf",
+        "buildingsDir": "TXE/buildings"
+      },
+      "buildings": [
+        { "id": "txe1", "name": "TXE1", "description": "Primary Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/200-116-966/editor", "rooms": [] },
+        { "id": "txe2", "name": "TXE2", "description": "Secondary Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/647-792-551/editor", "rooms": [] },
+        { "id": "txe3", "name": "TXE3", "description": "Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/767-176-208/editor", "rooms": [] },
+        { "id": "txe5", "name": "TXE5", "description": "Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/190-437-699/editor", "rooms": [] },
+        { "id": "txe6", "name": "TXE6", "description": "Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/319-599-320/editor", "rooms": [] },
+        { "id": "txe7", "name": "TXE7", "description": "Data Hall", "bluebeamUrl": "https://app.bluebeam.com/sessions/300-225-768/editor", "rooms": [] },
+        { "id": "txe10", "name": "TXE10", "description": "Network Building", "bluebeamUrl": "https://app.bluebeam.com/sessions/492-134-271/editor", "rooms": [] },
+        { "id": "ibos", "name": "TXE-IBOS", "description": "Warehouse", "bluebeamUrl": "https://app.bluebeam.com/sessions/711-043-879/editor", "rooms": [] },
+        { "id": "admin", "name": "TXE-ADMIN", "description": "ADMIN Building", "bluebeamUrl": "https://app.bluebeam.com/sessions/555-957-540/editor", "rooms": [] }
+      ]
+    }
+  ]
+}

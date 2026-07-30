@@ -1,0 +1,17 @@
+.git
+.agents
+.claude
+.codex
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.docker.example
+**/node_modules
+**/dist
+backend/data
+backend/backups
+backend/config/sites.json
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.log

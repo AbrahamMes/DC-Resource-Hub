@@ -1,12 +1,8 @@
 import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { resolveDataPath } from '../utils/storagePaths.js';
 
 // Initialize SQLite database
-const dbPath = path.join(__dirname, '../../data/issues.db');
+const dbPath = resolveDataPath('issues.db', 'Legacy issues database path');
 const db = new Database(dbPath);
 
 // Create tables if they don't exist

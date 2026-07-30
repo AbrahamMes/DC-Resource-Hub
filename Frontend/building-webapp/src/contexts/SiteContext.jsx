@@ -20,6 +20,7 @@ export function useSite() {
 export function SiteProvider({ children }) {
   const [currentSite, setCurrentSite] = useState(null);
   const [availableSites, setAvailableSites] = useState([]);
+  const [defaultSiteId, setDefaultSiteId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -36,13 +37,12 @@ export function SiteProvider({ children }) {
       if (savedSite && availableSites.find(s => s.id === savedSite)) {
         setCurrentSite(savedSite);
       } else {
-        // Default to El Paso
-        const defaultSite = availableSites.find(s => s.id === 'TXE') || availableSites[0];
+        const defaultSite = availableSites.find(s => s.id === defaultSiteId) || availableSites[0];
         setCurrentSite(defaultSite.id);
         localStorage.setItem('selectedSite', defaultSite.id);
       }
     }
-  }, [availableSites, currentSite]);
+  }, [availableSites, currentSite, defaultSiteId]);
 
   async function loadSites() {
     try {
@@ -54,24 +54,15 @@ export function SiteProvider({ children }) {
 
       if (data.success && data.sites) {
         setAvailableSites(data.sites);
+        setDefaultSiteId(data.defaultSiteId || data.sites[0]?.id || null);
       } else {
         throw new Error('Failed to load sites');
       }
     } catch (err) {
       console.error('Error loading sites:', err);
       setError(err.message);
-
-      // Fallback to El Paso site
-      setAvailableSites([
-        {
-          id: 'TXE',
-          name: 'El Paso, Texas',
-          fullName: 'El Paso Data Center'
-        }
-      ]);
-
-      setCurrentSite('TXE');
-      localStorage.setItem('selectedSite', 'TXE');
+      setAvailableSites([]);
+      setCurrentSite(null);
     } finally {
       setLoading(false);
     }
@@ -104,6 +95,16 @@ export function SiteProvider({ children }) {
     changeSite,
     reloadSites: loadSites
   };
+
+  if (!loading && error) {
+    return (
+      <div role="alert" style={{ padding: '40px', color: '#9b1c1c', textAlign: 'center' }}>
+        <h1>Site configuration unavailable</h1>
+        <p>{error}</p>
+        <button type="button" onClick={loadSites}>Retry</button>
+      </div>
+    );
+  }
 
   return (
     <SiteContext.Provider value={value}>

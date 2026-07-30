@@ -1,16 +1,20 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Environment variables
 .env
+.env.bak
 .env.local
 .env.production
+
+# Deployment-specific site configuration (copy from sites.example.json)
+backend/config/sites.json
 
 # Database files
 *.db
 *.db-journal
 backend/backups/
+backend/data/
 
 # Logs
 logs/

@@ -1,49 +1,20 @@
 import { getCommissioningDb, getAssetsDb } from '../models/databaseManager.js';
-import XLSX from 'xlsx';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Get unique locations from both assets database and Excel file
+// Get unique locations directly from the site's synced assets.
 export const getLocations = (req, res) => {
   try {
     const assetsDb = getAssetsDb(req.siteId);
-    const excelPath = path.join(__dirname, '../../data', req.siteConfig.staticAssets.excelFile);
 
-    // Get locations from assets database
     const dbLocations = assetsDb.prepare(`
-      SELECT DISTINCT location
+      SELECT DISTINCT TRIM(location) AS location
       FROM assets
-      WHERE excel_data = 'true' AND location != ''
-      ORDER BY location ASC
+      WHERE TRIM(COALESCE(location, '')) != ''
+      ORDER BY location COLLATE NOCASE ASC
     `).all();
-
-    const dbLocationList = dbLocations.map(l => l.location).filter(Boolean);
-
-    // Also get locations from Excel file as fallback/supplement
-    let excelLocations = [];
-    try {
-      const workbook = XLSX.readFile(excelPath);
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet);
-
-      excelLocations = [...new Set(data
-        .map(row => row.Location)
-        .filter(loc => loc && loc.trim() !== '')
-      )];
-    } catch (excelError) {
-      console.error('Could not read Excel file for locations:', excelError);
-    }
-
-    // Combine and deduplicate
-    const allLocations = [...new Set([...dbLocationList, ...excelLocations])].sort();
 
     res.json({
       success: true,
-      locations: allLocations
+      locations: dbLocations.map(({ location }) => location)
     });
   } catch (error) {
     console.error('Error fetching locations:', error);
@@ -70,8 +41,8 @@ export const getAssetsByLocation = (req, res) => {
     const assets = assetsDb.prepare(`
       SELECT id, name, category, description, location
       FROM assets
-      WHERE excel_data = 'true' AND location = ?
-      ORDER BY name ASC
+      WHERE TRIM(COALESCE(location, '')) = TRIM(?)
+      ORDER BY name COLLATE NOCASE ASC
     `).all(location);
 
     res.json({

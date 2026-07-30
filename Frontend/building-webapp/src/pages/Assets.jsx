@@ -6,8 +6,10 @@ import config from "../config";
 const API_BASE_URL = config.apiBaseUrl;
 
 export default function Assets() {
-  const { currentSite } = useSite();
-  const [projectId, setProjectId] = useState(() => getSavedAccProjectId(currentSite));
+  const { currentSite, availableSites } = useSite();
+  const currentSiteConfig = availableSites.find((site) => site.id === currentSite);
+  const projects = currentSiteConfig?.accProjects || [];
+  const [projectId, setProjectId] = useState("");
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -28,7 +30,11 @@ export default function Assets() {
 
   // Reload data when site changes
   useEffect(() => {
-    const savedProjectId = getSavedAccProjectId(currentSite);
+    const savedProjectId = getSavedAccProjectId(
+      currentSite,
+      projects,
+      currentSiteConfig?.defaultAccProjectId
+    );
     if (savedProjectId !== projectId) {
       setProjectId(savedProjectId);
       return;
@@ -39,7 +45,7 @@ export default function Assets() {
       fetchAssets();
       fetchSyncStatus();
     }
-  }, [currentSite, projectId]);
+  }, [currentSite, projectId, currentSiteConfig]);
 
   // Check authentication status on mount
   useEffect(() => {
