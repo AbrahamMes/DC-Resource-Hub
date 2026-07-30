@@ -1,0 +1,54 @@
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import Hotbar from "./components/Hotbar";
+import Home from "./pages/Home";
+import Schedules from "./pages/Schedules";
+import Contacts from "./pages/Contacts";
+import Issues from "./pages/Issues";
+import Assets from "./pages/Assets";
+import CommissioningReport from "./pages/CommissioningReport";
+import Buildings from "./pages/Buildings";
+import TTX1 from "./pages/TTX1";
+import DHA from "./pages/DHA";
+import NS1 from "./pages/NS1";
+import NS2 from "./pages/NS2";
+import DHB from "./pages/DHB";
+import DHC from "./pages/DHC";
+import DHD from "./pages/DHD";
+
+function Layout() {
+  return (
+    <div>
+      <Hotbar />
+      <main style={{ marginTop: 64, paddingTop: 20, paddingLeft: 20, paddingRight: 20 }}>
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="schedules" element={<Schedules />} />
+          <Route path="contacts" element={<Contacts />} />
+          <Route path="issues" element={<Issues />} />
+          <Route path="assets" element={<Assets />} />
+          <Route path="commissioning-report" element={<CommissioningReport />} />
+          <Route path="buildings" element={<Buildings />} />
+          <Route path="buildings/:id" element={<TTX1 />} />
+          <Route path="dha" element={<DHA />} />
+          <Route path="ns1" element={<NS1 />} />
+          <Route path="ns2" element={<NS2 />} />
+          <Route path="dhb" element={<DHB />} />
+          <Route path="dhc" element={<DHC />} />
+          <Route path="dhd" element={<DHD />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
